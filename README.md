@@ -1,6 +1,3 @@
-# bitmark-node-app
-A graphic user interface for bitmark-node
-
 # Bitmark-Node User Interface 
 
 [ [Client Setup](#Client-Setup-Introduction) | [Developer Setup](#Developer-Setup) ]
