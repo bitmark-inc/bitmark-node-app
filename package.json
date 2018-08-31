@@ -1,0 +1,77 @@
+{
+  "name": "bitmark-node",
+  "productName": "bitmark-node",
+  "version": "1.0.0",
+  "description": "Bitmark Node User Interface",
+  "productDescription": "User interface to view and control the Bitmark Node Docker Container. Read more at bitmark.org.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "echo \"No linting configured\""
+  },
+  "repository": "https://github.com/zizzard/Electron-Bitmark-Node",
+  "keywords": [
+    "bitmark",
+    "node",
+    "bitmark-node",
+    "docker",
+    "blockchain",
+    "ui"
+  ],
+  "author": "Zach Izzard",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitmark-inc/bitmark-node-app"
+  },
+  "homepage": "https://github.com/bitmark-inc/bitmark-node-app#readme",
+  "config": {
+    "forge": {
+      "electronPackagerConfig": {
+        "icon": "src/assets/icons/app_icon.png"
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "electron_bitmark_node"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.1.0",
+    "electron-context-menu": "^0.10.0",
+    "electron-settings": "^3.2.0",
+    "electron-squirrel-startup": "^1.0.0",
+    "electron-window-state": "^4.1.1",
+    "node-notifier": "^5.2.1",
+    "public-ip": "^2.4.0",
+    "user-home": "^2.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.22",
+    "@electron-forge/maker-deb": "^6.0.0-beta.22",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.22",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.22",
+    "@electron-forge/maker-zip": "^6.0.0-beta.22",
+    "electron": "2.0.8"
+  }
+}
