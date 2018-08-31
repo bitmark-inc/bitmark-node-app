@@ -1,4 +1,5 @@
-### FOR WINDOWS DOCKER v18.06 IS REQUIRED
+# bitmark-node-app
+A graphic user interface for bitmark-node
 
 # Bitmark-Node User Interface 
 
@@ -39,7 +40,7 @@ The Bitmark node consists of the following software programs:
 
 **To install the Bitmark node software, please complete the following 2 steps:**
 
-### 1. Install Docker
+### 1. Install Docker v18.06 or newer
 
 The Bitmark node software is distributed as a standalone [Docker container](https://www.docker.com/what-container) which requires you to first install Docker for your operating system:
 
