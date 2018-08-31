@@ -108,9 +108,6 @@ This full-sized menu appears once you start the ```bitmarkd``` software.
   * You client's ID on the Bitmark node network.
 * Current Block
   * This displays what the current block your system is on. This can either be the latest block, or the block that it is currently downloading.
-* Transaction Counter
-  * ```Pending```: TODO - Not 100% sure what this counts as it seems to be broken.
-  * ```Verified```: TODO - Not 100% sure what this counts as it seems to be broken.
 * Uptime
   * This describes the total time that the Docker container has been active for.
 * Your Blocks
@@ -130,8 +127,6 @@ Node participants can select which blockchain they are currently working on via 
 The Bitmark system offers monetary rewards to block winners for both the `bitmark` and `testing` blockchains.
 
 ### Payment Addresses
-
-[comment]: <> (TODO: Update description to describe how people actually get paid.)
 
 Bitmark node participants running both `bitmarkd` and `recorderd` are awarded monetary payments for winning blocks on both the `bitmark` and `testing` blockchains. These payments are delivered as either bitcoin or litecoin payments (depending on current cryptocurrency prices and confirmation times) and are delivered to a node's designated bitcoin and litecoin payment addresses.
 
