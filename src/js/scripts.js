@@ -8,28 +8,17 @@ var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
 function startBitmarkNodeLocal(){
 	//Get if the program is running a function
 	const settings = require('electron').remote.require('electron-settings');
-	var running = settings.get('action_running');
-
 	//If the program is not running anything, start the container
-	if(!running){
-
-		//Set the program as running a function
-		settings.set('action_running', true);
-
+	if(!isActionRun()){
 		//Get the promise from startBitmarkNode and refresh the frame
 		startBitmarkNode().then((result) => {
 			mainConsole.log('Success', result);
-
 			//Set the program as not running a function
-			settings.set('action_running', false);
-
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
 			mainConsole.log('Error', error);
-
 			//Set the program as not running a function
-			settings.set('action_running', false);
 		});
 	}else{
 		mainConsole.log("Function already running");
@@ -42,28 +31,15 @@ function stopBitmarkNodeLocal(){
 
 	//Get if the program is running a function
 	const settings = require('electron').remote.require('electron-settings');
-	var running = settings.get('action_running');
-
 	//If the program is not running anything, start the container
-	if(!running){
-
-		//Set the program as running a function
-		settings.set('action_running', true);
-
+	if(!isActionRun()){
 		//Get the promise from stopBitmarkNode and refresh the frame
 		stopBitmarkNode().then((result) => {
 			mainConsole.log('Success', result);
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
-
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
 			mainConsole.log('Error', error);
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
 		});
 
 	}else{
@@ -76,14 +52,9 @@ function restartBitmarkNodeLocal(){
 
 	//Get if the program is running a function
 	const settings = require('electron').remote.require('electron-settings');
-	var running = settings.get('action_running');
 
 	//If the program is not running anything, start the container
-	if(!running){
-
-		//Set the program as running a function
-		settings.set('action_running', true);
-
+	if(!isActionRun()){
 		newNotification("Restarting container. This may take some time.");
 
 		//Get the promise from createContainerHelperLocal and refresh the frame
@@ -91,16 +62,10 @@ function restartBitmarkNodeLocal(){
 			mainConsole.log('Success', result);
 			mainConsole.log('Container Created');
 
-			//Set the program as not running a function
-			settings.set('action_running', false);
-
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
 			mainConsole.log('Error', error);
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
 		});
 	}else{
 		mainConsole.log("Function already running");
@@ -113,14 +78,9 @@ function setNetworkBitmarkLocal(){
 	// Fetch the user's preferred network
 	const settings = require('electron').remote.require('electron-settings');
 	var network = settings.get('network');
-	var running = settings.get('action_running');
 
 	//If the program is not running anything, start the container
-	if(!running){
-
-		//Set the program as running a function
-		settings.set('action_running', true);
-
+	if(!isActionRun()){
 		newNotification("Restarting container. This may take some time.");
 
 		//Checks the network
@@ -135,24 +95,13 @@ function setNetworkBitmarkLocal(){
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
 				mainConsole.log('Success', result);
-
-				//Set the program as not running a function
-				settings.set('action_running', false);
-
 				//Refresh the frame after 1 second
 				setTimeout(refreshFrame, 1000);
 			}, (error) => {
 				mainConsole.log('Error', error);
-
-				//Set the program as not running a function
-				settings.set('action_running', false);
 			});
 		} else {
 			mainConsole.log("Already on bitmark");
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
-
 			//Let the user know the network is already bitmark
 			newNotification("The network is already set to 'bitmark'.");
 		}
@@ -168,13 +117,9 @@ function setNetworkTestingLocal(){
 	// Fetch the user's preferred network
 	const settings = require('electron').remote.require('electron-settings');
 	var network = settings.get('network');
-	var running = settings.get('action_running');
 
 	//If the program is not running anything, start the container
-	if(!running){
-
-		//Set the program as running a function
-		settings.set('action_running', true);
+	if(!isActionRun()){
 
 		newNotification("Restarting container. This may take some time.");
 
@@ -190,24 +135,14 @@ function setNetworkTestingLocal(){
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
 			  mainConsole.log('Success', result);
-
-			  //Set the program as not running a function
-			  settings.set('action_running', false);
-
 			  //Refresh the frame after 1 second
 			  setTimeout(refreshFrame, 1000);
 			}, (error) => {
 			  mainConsole.log('Error', error);
 
-			  //Set the program as not running a function
-			  settings.set('action_running', false);
 			});
 		} else {
 			mainConsole.log("Already on testing");
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
-
 			//Let the user know the network is already bitmark
 			newNotification("The network is already set to 'testing'.");
 		}
@@ -220,28 +155,16 @@ function setNetworkTestingLocal(){
 function pullUpdateLocal(){
 	//Get if the program is running a function
 	const settings = require('electron').remote.require('electron-settings');
-	var running = settings.get('action_running');
-
 	//If the program is not running anything, start the container
-	if(!running){
-
-		//Set the program as running a function
-		settings.set('action_running', true);
+	if(!isActionRun()){
 
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
 		pullUpdate().then((result) => {
 			mainConsole.log('Success', result);
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
-
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
 			mainConsole.log('Error', error)
-
-			//Set the program as not running a function
-			settings.set('action_running', false);
 		});
 	}else{
 		mainConsole.log("Function already running");
