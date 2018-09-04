@@ -190,21 +190,28 @@ function containerCheck(){
 	exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
 	  //If the container is not setup, create it
 	  if (err) {
-	  	//Call container helper and wait for the promise to reload the page on success
-	  	createContainerHelper().then((result) => {
-	  	  console.log('Success', result);
+			//Call container helper and wait for the promise to reload the page on success
+			const net = settings.get('network');
+			const dir = settings.get('directory');
+			createContainerHelperIPOnly(net, dir, isWin).then((result) => {
+			  console.log('Success', result);
 	  	  mainWindow.reload();
-	  	}, (error) => {
-	  	  console.log('Error', error);
-	  	});
+			}, (error) => {
+				console.log('Error', error);
+				return; //terminate, don't have to start container
+			});
 	  }
 
 	  //If the container is stopped, start it
 	  var str = stdout.toString().trim();
 	  if(str.includes('false')){
-		startBitmarkNode_noNotif();
+			dockerStartNode().then((result) => {
+				console.log('bitmark-node start', result);
+			}, (error) => {
+				console.log('Error', error);
+			});
+		}
 		mainWindow.reload();
-	  }
 	});
 };
 
@@ -228,35 +235,32 @@ function startBitmarkNode(){
 		  	newNotification("The Docker container is already running.");
 		  	reject("Container already running");
 		  }else{
-		  	//Start the container named bitmarkNode
-		  	exec("docker start bitmarkNode", (err, stdout, stderr) => {
-		  	  if (err) {
-		  	    // node couldn't execute the command
-		  	    newNotification("The Docker container has failed to start.");
-		  	    reject("Failed to start container");
-		  	  }
-
-		  	  newNotification("The Docker container has started.");
-		  	  resolve(`${stdout}`);
-		  	});
+				//Start the container named bitmarkNode
+				dockerStartNode().then((result) => {
+					console.log('bitmark-node start', result);
+					newNotification("The Docker container has started.");
+				}, (error) => {
+					console.log('Error', error);
+					newNotification("The Docker container has failed to start.");
+				});
+				resolve(`${stdout}`);
 		  }
 		});
 	});
 };
 
 // Start the bitmarkNode Docker container without a notification
-function startBitmarkNode_noNotif(){
-	//Start the container named bitmarkNode
-	exec("docker start bitmarkNode", (err, stdout, stderr) => {
-	  if (err) {
-	    // node couldn't execute the command
-	    console.log("Failed to start container");
-	    return;
-	  }
-
-	  console.log("Container started");
-	  //Reload mainWindow
-	  mainWindow.reload();
+function dockerStartNode(){
+	return new Promise((resolve, reject) => {
+		//Stop the container named bitmarkNode
+		exec("docker start bitmarkNode", (err, stdout, stderr) => {
+		  if (err) {
+				console.log("Failed to start container");
+		    reject("Failed to start container.")
+		  }
+			console.log("Container started");
+		  resolve('The Docker container has started')
+		});
 	});
 };
 
