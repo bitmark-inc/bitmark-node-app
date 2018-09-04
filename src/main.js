@@ -85,7 +85,7 @@ app.on('ready', function() {
 	//Ensure settings are initialized on startup
 	settingSetup();
 	//On application start-up, run nodeRun
-	bitmarkNodeStart();
+	nodeAppRun();
 	//Check for check for updates if auto update is on after 2 seconds
 	setTimeout(autoUpdateCheck, 2000);
 });
@@ -171,9 +171,12 @@ function isActionRun() {
 
 function reloadMain(page) {
 	if (curPage != page) {
-		mainWindow.loadURL(`file://${__dirname}/`+ page + `.html`)
+		mainWindow.loadURL(`file://${__dirname}/`+ page + `.html`);
+		console.log("load new page:",page);
 	} else {
 		mainWindow.reload();
+		console.log("mainWindow reload:", curPage);
+
 	}	
 	curPage = page;
 };
@@ -187,8 +190,8 @@ function autoUpdateCheck(){
 		//Call pullUpdate and wait for the promise to return the result
 		pullUpdate().then((result) => {
 			//If it is a success (update installed) reload the window
-			console.log('Success', result);
-			mainWindow.reload();
+			console.log('autoUpdateCheck Success', result);
+			reloadMain("index");
 		}, (error) => {
 			console.log('Error', error)
 		});
@@ -203,7 +206,7 @@ function autoUpdateCheck(){
 //  2. If the container is not start, it starts it
 //  3. If the container is running, it does nothing
 
-function bitmarkNodeStart(){
+function nodeAppRun(){
 
 	//Get the container status of bitmarkNode
 	exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
@@ -212,25 +215,25 @@ function bitmarkNodeStart(){
 			//Call container helper and wait for the promise to reload the page on success
 			const net = settings.get('network');
 			const dir = settings.get('directory');
+			
 			createContainerHelperIPOnly(net, dir, isWin).then((result) => {
-			  console.log('Success', result);
+				console.log('nodeAppRun Success', result);
+				reloadMain("index");
 			}, (error) => {
 				console.log('Error', error);
-				mainWindow.reload();
 				return; //terminate, don't have to start container
 			});
 	  }
-
 	  //If the container is stopped, start it
 	  var str = stdout.toString().trim();
-	  if(str.includes('false')){
+	  if (str.includes('false')){
 			dockerStartNode().then((result) => {
 				console.log('bitmark-node start', result);
 			}, (error) => {
 				console.log('Error', error);
 			});
 		}
-		mainWindow.reload();
+		reloadMain("index");
 	});
 };
 
@@ -310,7 +313,7 @@ function dockerStopNode(){
 		    reject("Failed to start container.")
 		  }
 			console.log("Container stoped");
-		  resolve('The Docker container has stoped')
+		  	resolve('The Docker container has stoped')
 		});
 	});
 };
@@ -336,17 +339,6 @@ function createContainerHelperIPOnly(net, dir, isWin){
 	
 	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelper or local render process function)
 	return new Promise((resolve, reject) => {
-		//If the OS is Windows check to see if the user is logged in
-		if(isWin){
-			dockerLogin().then((result) => { 
-				//login successfully, do nothing.
-			}, (error) => {
-				console.log('Error', error);
-				newNotification("Docker is not logged in. Please login into the Docker application and retry.");
-				reject(error); // Returned
-			});
-		//Create the container is the OS isn't windows
-		}
 		//Check to see if auto_ip is turned on, if so get it, else use the users defined IP
 		if(auto_ip){
 			publicIp.v4().then(ip => {
@@ -412,6 +404,14 @@ function pullUpdate(){
 	newNotification("Checking for updates. This may take some time.");
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve, reject) => {
+		if(isWin){ 
+			dockerLogin().then((result) => { 
+				//login successfully, do nothing.
+			}, (error) => {
+				console.log('Error', error);
+				newNotification("Docker is not logged in. Sometime, it fail to pull due to not login. You could configure the Docker client to not automatically use a credential from your home directory.");
+			});
+		}
 
 		//Pull updates from the docker bitmark-node repo
 		exec("docker pull bitmark/bitmark-node", (err, stdout, stderr) => {
@@ -439,7 +439,7 @@ function pullUpdate(){
 				const net = settings.get('network');
 				const dir = settings.get('directory');
 				createContainerHelperIPOnly(net, dir, isWin).then((result) => {
-					console.log('Success', result);
+					console.log('pullUpdate Success', result);
 					newNotification("The Bitmark Node software has been updated.");
 					resolve(result);
 				}, (error) => {

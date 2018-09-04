@@ -82,9 +82,9 @@
         //if there is an error, then the image isn't setup
         var str = stderr.toString().trim();
 
-        //Check to see if the image doesn't exist, if it doesn't let the user now.
+        //Check to see if the image doesn't exist, if it doesn't let the user know now.
         if(str.length !== 0){
-
+          
           exec("docker login", (err, stdout, stderr) => {
           	//Get the output
           	var str = stdout.toString();
@@ -93,7 +93,7 @@
           	//Is the user is not logged in is on Windows - change text to request login
           	if(!str.includes("Login Succeeded") && isWin){
           		console.log("Docker is not logged in");
-          		document.getElementById("main-text").innerHTML="DOCKER IS NOT LOGGED IN, PLEASE LOGIN NOW"; 
+          		document.getElementById("main-text").innerHTML="DOCKER IS NOT LOGGED IN. SOMETIMES, DOCKER PULL FAILED DUE TO NOT LOGIN."; 
           	}
 
           	//Display div
