@@ -1,4 +1,6 @@
 const { ipcRenderer, remote } = require('electron');
+var nodeConsole = require('console');
+var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
 
 /* Sidebar Functions */
 
@@ -16,7 +18,7 @@ function startBitmarkNodeLocal(){
 
 		//Get the promise from startBitmarkNode and refresh the frame
 		startBitmarkNode().then((result) => {
-			console.log('Success', result);
+			mainConsole.log('Success', result);
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
@@ -24,13 +26,13 @@ function startBitmarkNodeLocal(){
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
-			console.log('Error', error);
+			mainConsole.log('Error', error);
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
 		});
 	}else{
-		console.log("Function already running");
+		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
@@ -50,7 +52,7 @@ function stopBitmarkNodeLocal(){
 
 		//Get the promise from stopBitmarkNode and refresh the frame
 		stopBitmarkNode().then((result) => {
-			console.log('Success', result);
+			mainConsole.log('Success', result);
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
@@ -58,14 +60,14 @@ function stopBitmarkNodeLocal(){
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
-			console.log('Error', error);
+			mainConsole.log('Error', error);
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
 		});
 
 	}else{
-		console.log("Function already running");
+		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
@@ -86,8 +88,8 @@ function restartBitmarkNodeLocal(){
 
 		//Get the promise from createContainerHelperLocal and refresh the frame
 		createContainerHelperLocal().then((result) => {
-			console.log('Success', result);
-			console.log('Container Created');
+			mainConsole.log('Success', result);
+			mainConsole.log('Container Created');
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
@@ -95,13 +97,13 @@ function restartBitmarkNodeLocal(){
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
-			console.log('Error', error);
+			mainConsole.log('Error', error);
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
 		});
 	}else{
-		console.log("Function already running");
+		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
@@ -125,14 +127,14 @@ function setNetworkBitmarkLocal(){
 		if(network === "testing"){
 			//Update network
 			settings.set('network', 'bitmark');
-			console.log("Changing to bitmark");
+			mainConsole.log("Changing to bitmark");
 			
 			//Lets the user know what is happening
 			newNotification("Changing the network to 'bitmark'. This may take some time.");
 			
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
-				console.log('Success', result);
+				mainConsole.log('Success', result);
 
 				//Set the program as not running a function
 				settings.set('action_running', false);
@@ -140,13 +142,13 @@ function setNetworkBitmarkLocal(){
 				//Refresh the frame after 1 second
 				setTimeout(refreshFrame, 1000);
 			}, (error) => {
-				console.log('Error', error);
+				mainConsole.log('Error', error);
 
 				//Set the program as not running a function
 				settings.set('action_running', false);
 			});
 		} else {
-			console.log("Already on bitmark");
+			mainConsole.log("Already on bitmark");
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
@@ -156,7 +158,7 @@ function setNetworkBitmarkLocal(){
 		}
 
 	}else{
-		console.log("Function already running");
+		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
@@ -180,14 +182,14 @@ function setNetworkTestingLocal(){
 		if(network === "bitmark"){
 			//Update network
 			settings.set('network', 'testing');
-			console.log("Changing to testing");
+			mainConsole.log("Changing to testing");
 			
 			//Lets the user know what is happening
 			newNotification("Changing the network to 'testing'. This may take some time.");
 			
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
-			  console.log('Success', result);
+			  mainConsole.log('Success', result);
 
 			  //Set the program as not running a function
 			  settings.set('action_running', false);
@@ -195,13 +197,13 @@ function setNetworkTestingLocal(){
 			  //Refresh the frame after 1 second
 			  setTimeout(refreshFrame, 1000);
 			}, (error) => {
-			  console.log('Error', error);
+			  mainConsole.log('Error', error);
 
 			  //Set the program as not running a function
 			  settings.set('action_running', false);
 			});
 		} else {
-			console.log("Already on testing");
+			mainConsole.log("Already on testing");
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
@@ -210,7 +212,7 @@ function setNetworkTestingLocal(){
 			newNotification("The network is already set to 'testing'.");
 		}
 	}else{
-		console.log("Function already running");
+		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
@@ -228,7 +230,7 @@ function pullUpdateLocal(){
 
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
 		pullUpdate().then((result) => {
-			console.log('Success', result);
+			mainConsole.log('Success', result);
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
@@ -236,13 +238,13 @@ function pullUpdateLocal(){
 			//Refresh the frame after 1 second
 			setTimeout(refreshFrame, 1000);
 		}, (error) => {
-			console.log('Error', error)
+			mainConsole.log('Error', error)
 
 			//Set the program as not running a function
 			settings.set('action_running', false);
 		});
 	}else{
-		console.log("Function already running");
+		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
