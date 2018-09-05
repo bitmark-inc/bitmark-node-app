@@ -15,7 +15,7 @@ const notifier = require('node-notifier'); //Notifications (https://www.npmjs.co
 const { exec } = require('child_process'); //Electron Default Child Process - Used to run CLI commands
 const windowStateKeeper = require('electron-window-state'); //Electron-Window-State - Keep window state from instances of program (https://www.npmjs.com/package/electron-window-state)
 const userHome = require('user-home'); //User-Home (https://github.com/sindresorhus/user-home)
-
+var appStr = require('./js/appstring');
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
@@ -193,9 +193,8 @@ function autoUpdateCheck(){
 			setActionRun(false);
 			console.log('autoUpdateCheck Success', result);
 			reloadMain("index");
-		}, (error) => {
+		}, (error) => { // check error or no need to be updated
 			setActionRun(false);
-			reloadMain("index");
 			console.log('Error', error)
 		});
 	}
@@ -211,10 +210,10 @@ function autoUpdateCheck(){
 
 function nodeAppRun(){
 	const dir = settings.get('directory');
-	directoryCheckHelper(dir).then((result)=> {
+	dirCheckHelperSync(dir).then((result)=> {
 		console.log("directoryCheckHelper success")
 	}, (error) => {
-		newNotification("Directories Create Failed!Please Check Permission.");
+		newNotification(appStr.dirCheckFailed);
 		return;
 	});
 	//Get the container status of bitmarkNode
@@ -222,24 +221,22 @@ function nodeAppRun(){
 	  //If the container is not setup, create it
 	  if (err) {
 		console.log('nodeAppRun error',err);
-			//Call container helper and wait for the promise to reload the page on success
-			const net = settings.get('network');
-			const dir = settings.get('directory');		
-			createContainerHelperIPOnly(net, dir, isWin).then((result) => {
-				console.log('nodeAppRun Success', result);
-				reloadMain("index");
-			}, (error) => {
-				console.log('createContainerHelperIPOnly Error', error);
-				reloadMain("index");
-				return; //terminate, don't have to start container
-			});
+		//Call container helper and wait for the promise to reload the page on success
+		const net = settings.get('network');
+		const dir = settings.get('directory');		
+		createContainerHelperSync(net, dir, isWin).then((result) => {
+			console.log('nodeAppRun Success', result);
+			reloadMain("index");
+		}, (error) => {
+			console.log('createContainerHelperSync Error', error);
+			return; //terminate, don't have to start container
+		});
 	  } else {
 		 //If the container is stopped, start it
 		 var str = stdout.toString().trim();
-		 console.log('nodeAppRun no error');
 		 if (str.includes('false')){
 			  setActionRun(true);
-			   dockerStartNode().then((result) => {
+			   dockerStartNodeSync().then((result) => {
 				setActionRun(false);
 				   console.log('bitmark-node start', result);
 				   reloadMain("index");
@@ -251,10 +248,9 @@ function nodeAppRun(){
 		   }
 	  }
 	 
-		reloadMain("index");
 	});
 };
-function dockerLogin() {
+function dockerLoginSync() {
 	return new Promise((resolve, reject) => {
 		//Stop the container named bitmarkNode
 		exec("docker login", (err, stdout, stderr) => {
@@ -272,7 +268,7 @@ function dockerLogin() {
 };
 
 // Start the bitmarkNode Docker container without a notification
-function dockerStartNode(){
+function dockerStartNodeSync(){
 	console.log("dockerStartNode start");
 	return new Promise((resolve, reject) => {
 		//Start the container named bitmarkNode
@@ -288,8 +284,7 @@ function dockerStartNode(){
 };
 
 // Start the bitmarkNode Docker container without a notification
-function dockerStopNode(){
-	console.log("dockerStopNode start")
+function dockerStopNodeSync(){
 	return new Promise((resolve, reject) => {
 		//Stop the container named bitmarkNode
 		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
@@ -305,7 +300,7 @@ function dockerStopNode(){
 };
 
 // Start the bitmarkNode Docker container
-function startBitmarkNode(){
+function startBitmarkNodeSync(){
 
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve, reject) => {
@@ -315,7 +310,7 @@ function startBitmarkNode(){
 		exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
 		  //If the container is not setup, create it
 		  if (err) {
-			newNotification("The Docker container is not setup. Please restart the application.");
+			newNotification(containerNotSetupRestartApp);
 			setActionRun(false);
 		  	reject("Failed to start container");
 		  }
@@ -324,19 +319,19 @@ function startBitmarkNode(){
 		  var str = stdout.toString().trim();
 		  if(str.includes('true')){
 			setActionRun(false);
-			newNotification("The Docker container is already running.");
+			newNotification(appStr.containerAlreadyRuning);
 		  	reject("Container already running");
 		  }else{
 				//Start the container named bitmarkNode
 				setActionRun(true);
-				dockerStartNode().then((result) => {
+				dockerStartNodeSync().then((result) => {
 					setActionRun(false);
 					console.log('bitmark-node start', result);
-					newNotification("The Docker container has started.");
+					newNotification(appStr.containerHasStart);
 				}, (error) => {
 					setActionRun(false);
 					console.log('Error', error);
-					newNotification("The Docker container has failed to start.");
+					newNotification(appStr.containerFailStart);
 				});
 				resolve(`${stdout}`);
 		  }
@@ -346,35 +341,35 @@ function startBitmarkNode(){
 
 
 // Stop the bitmarkNode Docker container
-function stopBitmarkNode(){
-	newNotification("Stopping the Docker container. This may take some time.");
+function stopBitmarkNodeSync(){
+	newNotification(appStr.containerStopTakeTime);
 	setActionRun(true);
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve,reject)=> {
-		dockerStopNode().then((result) => {
+		dockerStopNodeSync().then((result) => {
 			setActionRun(false);	
-			newNotification("The Docker container has stopped.");
+			newNotification(appStr.containerHasStop);
 			resolve('The Docker container has stopped');
 		}, (error) => {
 			setActionRun(false);
-			newNotification("The Docker container has failed to stop.");
+			newNotification(appStr.containerFailStop);
 			reject("Failed to stop container.");
 		});
 	} );
 };
 
-// Create the container with the network and directory given
-function createContainerHelperIPOnly(net, dir, isWin){
+// Create the container with the network
+function createContainerHelperSync(net, dir, isWin){
 	var auto_ip = settings.get('auto_ip');
 	var user_ip = settings.get('ip');
-	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelper or local render process function)
+	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelperSync or local render process function)
 	return new Promise((resolve, reject) => {
 		//Check to see if auto_ip is turned on, if so get it, else use the users defined IP
 		setActionRun(true);
 		if(auto_ip){
 			publicIp.v4().then(ip => {
 					//Get the promise from createContainer and return the result
-					createContainer(ip, net, dir, isWin).then((result) => {
+					createContainerSync(ip, net, dir, isWin).then((result) => {
 					setActionRun(false);
 					resolve(result);
 				}, (error) => {
@@ -383,17 +378,17 @@ function createContainerHelperIPOnly(net, dir, isWin){
 				});
 			});
 		}else if(user_ip === 'xxx.xxx.xxx.xxx' || user_ip === '' || user_ip === undefined){
-				newNotification("You have turned on manual IP setup, though your IP address is invalid. Please turn on automatic IP setup, or check your manually entered IP address. ")
+				newNotification(appStr.maualIPNotValidCheckIP);
 				setActionRun(false);
 				reject("Bad IP address");
 		} else {
 			//Get the promise from createContainer and return the result
-			createContainer(user_ip, net, dir, isWin).then((result) => {
-				console.log("createContainerHelperIPOnly : manual ip success")
+			createContainerSync(user_ip, net, dir, isWin).then((result) => {
+				console.log("createContainerHelperSync : manual ip success")
 				setActionRun(false);
 				resolve(result);
 			}, (error) => {
-				console.log("createContainerHelperIPOnly : manual ip false")
+				console.log("createContainerHelperSync : manual ip false")
 				setActionRun(false);
 				reject(error);
 			});
@@ -402,19 +397,18 @@ function createContainerHelperIPOnly(net, dir, isWin){
 };
 
 //Create the docker container
-function createContainer(ip, net, dir, isWin){
+function createContainerSync(ip, net, dir, isWin){
 	//Check to make sure the needed directories exist
 	console.log("createContainer start")
-	//directoryCheckHelper(dir);
 
 	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelperLocalIP)
 	return new Promise((resolve, reject) => {
 
 		//Attempt to remove and stop the container before creating the container.
 		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
-			console.log("createContainer docker stop start")
+			console.log("createContainerSync docker stop start")
 			exec("docker rm bitmarkNode", (err, stdout, stderr) => {
-				console.log("createContainer docker rm start")
+				console.log("createContainerSync docker rm start")
 				//Use the command suited for the platform
 		    	if(isWin){
 		    		//The windows command is the same as the linux command, except with \\ (\\ to delimit the single backslash) instead of /
@@ -422,15 +416,14 @@ function createContainer(ip, net, dir, isWin){
 				}else{
 		    		var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data bitmark/bitmark-node`
 		    	}
-		    	
 				//Run the command
 		    	exec(command, (err, stdout, stderr) => {
-					console.log("createContainer docker run end")
+					console.log("createContainerSync docker run end")
 		    		if (err) {
-		        		newNotification("The Docker container failed to be created. Ensure you're connected to the Internet and Docker is running properly.");
+		        		newNotification(app.conatinerCreateFail);
 		        		reject("Failed to create container");
 		    		}
-		    		newNotification("The Docker container was created successfully.");
+		    		newNotification(appStr.containerCreateSucces);
 		    		resolve("Created container");
 				});
 			});
@@ -438,18 +431,17 @@ function createContainer(ip, net, dir, isWin){
 	});
 };
 
-
 // Check for updates from bitmark/bitmark-node
 function pullUpdate(){
-	newNotification("Checking for updates. This may take some time.");
+	newNotification(appStr.checkUpdateWait);
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve, reject) => {
 		if(isWin){ 
-			dockerLogin().then((result) => { 
+			dockerLoginSync().then((result) => { 
 				//login successfully, do nothing.
 			}, (error) => {
 				console.log('Error', error);
-				newNotification("Docker is not logged in. Sometime, it fail to pull due to not login. You could configure the Docker client to not automatically use a credential from your home directory.");
+				newNotification(appStr.notLoginWarn);
 			});
 		}
 
@@ -457,36 +449,33 @@ function pullUpdate(){
 		exec("docker pull bitmark/bitmark-node", (err, stdout, stderr) => {
 		  if (err) {
 		    // node couldn't execute the command
-		    newNotification("There was an error checking for an update. Please check your Internet connection and restart the Docker application.");
+		    newNotification(appStr.errorCheckUpdate);
 		    reject("Failed to pull update");
 		  }
-
 		  //get the output
 		  var str = stdout.toString();
-
 		  //Check to see if the up to date text is present
 		  if(str.indexOf("Image is up to date for bitmark/bitmark-node") !== -1){
-		  	newNotification("No updates to the Bitmark Node software have been found.");
+		  	newNotification(appStr.noUpdateFound);
 		  	//Rejects because an update was no found, even though there was no error
 		  	reject('No updates');
 		  }
 		  //Check to see if the updated text is present
 		  else if(str.indexOf("Downloaded newer image for bitmark/bitmark-node") !== -1){
-		  	console.log("Updated");
-		  	newNotification("The Bitmark Node software has downloaded. Installing updates now.");
-
-				//Call container helper and wait for the promise to reload the page on success
-				const net = settings.get('network');
-				const dir = settings.get('directory');
-				createContainerHelperIPOnly(net, dir, isWin).then((result) => {
-					console.log('pullUpdate Success', result);
-					newNotification("The Bitmark Node software has been updated.");
-					resolve(result);
-				}, (error) => {
-					reject(error);
-				});
+			console.log("Updated");
+			newNotification(appStr.installUpdateSoftware);
+			//Call container helper and wait for the promise to reload the page on success
+			const net = settings.get('network');
+			const dir = settings.get('directory');
+			createContainerHelperSync(net, dir, isWin).then((result) => {
+				console.log('pullUpdate Success', result);
+				newNotification(appStr.nodeUpdated);
+				resolve(result);
+			}, (error) => {
+				reject(error);
+			});
 		  }else{
-		  	newNotification("There was an error checking for an update. Please check your Internet connection and restart the Docker application.");
+		  	newNotification(appStr.errorCheckUpdate);
 		  	reject("Unknown update error.");
 		  }
 		});
@@ -494,9 +483,8 @@ function pullUpdate(){
 };
 
 /* Directory Functions */
-
 //Check to see if dir is defined and if not create it
-function directoryCheck(dir){
+function dirCheckSync(dir){
 	//If the directory doesn't exist, create it
 	if (!fs.existsSync(dir)){
 	    fs.mkdirSync(dir);
@@ -507,7 +495,7 @@ function directoryCheck(dir){
 };
 
 //Check directories
-function directoryCheckHelper(dir){
+function dirCheckHelperSync(dir){
 	//Get each directory and store it in a variable
 	const folder = dir;
 	var bitmarknode = `${folder}/bitmark-node-data`;
@@ -516,10 +504,10 @@ function directoryCheckHelper(dir){
 	var datatest = `${bitmarknode}/data-test`;
 	return new Promise((resolve, reject) => {
 		//Pass each variable to directoryCheck
-		directoryCheck(bitmarknode);
-		directoryCheck(db);
-		directoryCheck(data);
-		directoryCheck(datatest);
+		dirCheckSync(bitmarknode);
+		dirCheckSync(db);
+		dirCheckSync(data);
+		dirCheckSync(datatest);
 	});
 	
 };

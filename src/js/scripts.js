@@ -2,16 +2,17 @@ const { ipcRenderer, remote } = require('electron');
 const refreshDelay = 300; // delay of refresh frame
 var nodeConsole = require('console');
 var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
+var appStr = require('./appstring')
 
 /* Sidebar Functions */
 
-//Calls startBitmarkNode located in main.js and refreshes the iFrame
+//Calls startBitmarkNodeSync located in main.js and refreshes the iFrame
 function startBitmarkNodeLocal(){
 	mainConsole.log("startBitmarkNodeLocal start");
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		//Get the promise from startBitmarkNode and refresh the frame
-		startBitmarkNode().then((result) => {
+		//Get the promise from startBitmarkNodeSync and refresh the frame
+		startBitmarkNodeSync().then((result) => {
 			mainConsole.log('startBitmarkNodeLocal Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
@@ -21,16 +22,16 @@ function startBitmarkNodeLocal(){
 		reloadMain("index");
 	}else{
 		mainConsole.log("Function already running");
-		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
+		newNotification(appStr.anotherActionIsRunning);
 	}
 };
 
-//calls stopBitmarkNode located in main.js
+//calls stopBitmarkNodeSync located in main.js
 function stopBitmarkNodeLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		//Get the promise from stopBitmarkNode and refresh the frame
-		stopBitmarkNode().then((result) => {
+		//Get the promise from stopBitmarkNodeSync and refresh the frame
+		stopBitmarkNodeSync().then((result) => {
 			mainConsole.log('stopBitmarkNodeLocal Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
@@ -39,14 +40,14 @@ function stopBitmarkNodeLocal(){
 		});
 	}else{
 		mainConsole.log("Function already running");
-		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
+		newNotification(appStr.containerHasStop);
 	}
 };
 
 function restartBitmarkNodeLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		newNotification("Restarting container. This may take some time.");
+		newNotification(appStr.containerRestartWait);
 		//Get the promise from createContainerHelperLocal and refresh the frame
 		createContainerHelperLocal().then((result) => {
 			mainConsole.log('Success', result);
@@ -57,7 +58,7 @@ function restartBitmarkNodeLocal(){
 		});
 	}else{
 		mainConsole.log("Function already running");
-		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
+		newNotification(appStr.anotherActionIsRunning);
 	}
 };
 
@@ -69,7 +70,7 @@ function setNetworkBitmarkLocal(){
 
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		newNotification("Restarting container. This may take some time.");
+		newNotification(appStr.containerRestartWait);
 		//Checks the network
 		if(network === "testing"){
 			//Update network
@@ -77,7 +78,7 @@ function setNetworkBitmarkLocal(){
 			mainConsole.log("Changing to bitmark");
 			
 			//Lets the user know what is happening
-			newNotification("Changing the network to 'bitmark'. This may take some time.");
+			newNotification(appStr.networkChangeBitmarkWait);
 			
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
@@ -89,11 +90,11 @@ function setNetworkBitmarkLocal(){
 			});
 		} else {
 			mainConsole.log("Already on bitmark");
-			newNotification("The network is already set to 'bitmark'.");
+			newNotification(appStr.networkAlreadyBitmark);
 		}
 	}else{
 		mainConsole.log("Function already running");
-		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
+		newNotification(appStr.anotherActionIsRunning);
 	}
 };
 //Changes the network to testing if it current isn't on it
@@ -104,7 +105,7 @@ function setNetworkTestingLocal(){
 
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		newNotification("Restarting container. This may take some time.");
+		newNotification(appStr.containerRestartWait);
 		//Checks the network
 		if(network === "bitmark"){
 			//Update network
@@ -112,8 +113,8 @@ function setNetworkTestingLocal(){
 			mainConsole.log("Changing to testing");
 			newNotification("Changing the network to 'testing'. This may take some time.");
 			createContainerHelperLocal().then((result) => {
-			  mainConsole.log('Success', result);
-			  setTimeout(refreshFrame, refreshDelay);
+			mainConsole.log('Success', result);
+			setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
 			  mainConsole.log('Error', error);
 
@@ -121,11 +122,11 @@ function setNetworkTestingLocal(){
 		} else {
 			mainConsole.log("Already on testing");
 			//Let the user know the network is already bitmark
-			newNotification("The network is already set to 'testing'.");
+			newNotification(appStr.networkAlreadyTest);
 		}
 	}else{
 		mainConsole.log("Function already running");
-		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
+		newNotification(appStr.anotherActionIsRunning);
 	}
 };
 
@@ -144,7 +145,7 @@ function pullUpdateLocal(){
 		});
 	}else{
 		mainConsole.log("Function already running");
-		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
+		newNotification(appStr.anotherActionIsRunning);
 	}
 };
 
@@ -197,7 +198,7 @@ function createContainerHelperLocal(){
 
 	//Return the promise from createContainerHelperIPOnly to allow the frame to be freshed
 	return new Promise((resolve, reject) => {
-		createContainerHelperIPOnly(net, dir, isWin).then((result) => {
+		createContainerHelperSync(net, dir, isWin).then((result) => {
 			resolve(result);
 		}, (error) => {
 			reject(error);
