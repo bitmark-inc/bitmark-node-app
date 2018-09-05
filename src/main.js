@@ -424,7 +424,6 @@ function createContainer(ip, net, dir, isWin){
 		    	}
 		    	
 				//Run the command
-				console.log("createContainer docker run start")
 		    	exec(command, (err, stdout, stderr) => {
 					console.log("createContainer docker run end")
 		    		if (err) {
@@ -434,11 +433,8 @@ function createContainer(ip, net, dir, isWin){
 		    		newNotification("The Docker container was created successfully.");
 		    		resolve("Created container");
 				});
-				console.log("createContainer docker rm end")
 			});
-			console.log("createContainer docker stop end")
 		});
-		console.log("createContainer end")
 	});
 };
 
