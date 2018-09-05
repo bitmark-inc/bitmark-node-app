@@ -38,6 +38,9 @@ let mainWindow, prefWindow;
 // keep curPage for not reload url when it is in the same page
 let actionRun, curPage;
 
+//After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
+const autoUpdateCheckDelay = 5000;
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
@@ -87,7 +90,7 @@ app.on('ready', function() {
 	//On application start-up, run nodeRun
 	nodeAppRun();
 	//Check for check for updates if auto update is on after 2 seconds
-	setTimeout(autoUpdateCheck, 2000);
+	setTimeout(autoUpdateCheck, autoUpdateCheckDelay);
 });
 
 // Quit when all windows are closed.
@@ -236,7 +239,7 @@ function nodeAppRun(){
 		 var str = stdout.toString().trim();
 		 if (str.includes('false')){
 			  setActionRun(true);
-			   dockerStartNodeSync().then((result) => {
+			   dockerStartSync().then((result) => {
 				setActionRun(false);
 				   console.log('bitmark-node start', result);
 				   reloadMain("index");
@@ -268,7 +271,7 @@ function dockerLoginSync() {
 };
 
 // Start the bitmarkNode Docker container without a notification
-function dockerStartNodeSync(){
+function dockerStartSync(){
 	console.log("dockerStartNode start");
 	return new Promise((resolve, reject) => {
 		//Start the container named bitmarkNode
@@ -284,7 +287,7 @@ function dockerStartNodeSync(){
 };
 
 // Start the bitmarkNode Docker container without a notification
-function dockerStopNodeSync(){
+function dockerStopSync(){
 	return new Promise((resolve, reject) => {
 		//Stop the container named bitmarkNode
 		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
@@ -301,10 +304,8 @@ function dockerStopNodeSync(){
 
 // Start the bitmarkNode Docker container
 function startBitmarkNodeSync(){
-
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve, reject) => {
-
 		//Get the container status of bitmarkNode
 		setActionRun(true);
 		exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
@@ -324,7 +325,7 @@ function startBitmarkNodeSync(){
 		  }else{
 				//Start the container named bitmarkNode
 				setActionRun(true);
-				dockerStartNodeSync().then((result) => {
+				dockerStartSync().then((result) => {
 					setActionRun(false);
 					console.log('bitmark-node start', result);
 					newNotification(appStr.containerHasStart);
@@ -339,14 +340,13 @@ function startBitmarkNodeSync(){
 	});
 };
 
-
 // Stop the bitmarkNode Docker container
 function stopBitmarkNodeSync(){
 	newNotification(appStr.containerStopTakeTime);
 	setActionRun(true);
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve,reject)=> {
-		dockerStopNodeSync().then((result) => {
+		dockerStopSync().then((result) => {
 			setActionRun(false);	
 			newNotification(appStr.containerHasStop);
 			resolve('The Docker container has stopped');
@@ -400,10 +400,8 @@ function createContainerHelperSync(net, dir, isWin){
 function createContainerSync(ip, net, dir, isWin){
 	//Check to make sure the needed directories exist
 	console.log("createContainer start")
-
 	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelperLocalIP)
 	return new Promise((resolve, reject) => {
-
 		//Attempt to remove and stop the container before creating the container.
 		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
 			console.log("createContainerSync docker stop start")
@@ -444,7 +442,6 @@ function pullUpdate(){
 				newNotification(appStr.notLoginWarn);
 			});
 		}
-
 		//Pull updates from the docker bitmark-node repo
 		exec("docker pull bitmark/bitmark-node", (err, stdout, stderr) => {
 		  if (err) {

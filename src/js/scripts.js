@@ -79,7 +79,6 @@ function setNetworkBitmarkLocal(){
 			
 			//Lets the user know what is happening
 			newNotification(appStr.networkChangeBitmarkWait);
-			
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
 				mainConsole.log('Success', result);
@@ -135,7 +134,6 @@ function pullUpdateLocal(){
 	const settings = require('electron').remote.require('electron-settings');
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
 		pullUpdate().then((result) => {
 			mainConsole.log('Success', result);
