@@ -1,4 +1,5 @@
 const { ipcRenderer, remote } = require('electron');
+const refreshDelay = 300; // delay of refresh frame
 var nodeConsole = require('console');
 var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
 
@@ -6,20 +7,18 @@ var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
 
 //Calls startBitmarkNode located in main.js and refreshes the iFrame
 function startBitmarkNodeLocal(){
-	//Get if the program is running a function
-	const settings = require('electron').remote.require('electron-settings');
+	mainConsole.log("startBitmarkNodeLocal start");
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		//Get the promise from startBitmarkNode and refresh the frame
 		startBitmarkNode().then((result) => {
-			mainConsole.log('Success', result);
-			//Set the program as not running a function
-			//Refresh the frame after 1 second
-			setTimeout(refreshFrame, 1000);
+			mainConsole.log('startBitmarkNodeLocal Success', result);
+			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			mainConsole.log('Error', error);
-			//Set the program as not running a function
+			mainConsole.log('startBitmarkNodeLocal Error', error);
+			setTimeout(refreshFrame, refreshDelay);
 		});
+		reloadMain("index");
 	}else{
 		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
@@ -28,20 +27,16 @@ function startBitmarkNodeLocal(){
 
 //calls stopBitmarkNode located in main.js
 function stopBitmarkNodeLocal(){
-
-	//Get if the program is running a function
-	const settings = require('electron').remote.require('electron-settings');
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		//Get the promise from stopBitmarkNode and refresh the frame
 		stopBitmarkNode().then((result) => {
-			mainConsole.log('Success', result);
-			//Refresh the frame after 1 second
-			setTimeout(refreshFrame, 1000);
+			mainConsole.log('stopBitmarkNodeLocal Success', result);
+			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			mainConsole.log('Error', error);
+			mainConsole.log('stopBitmarkNodeLocal Error', error);
+			setTimeout(refreshFrame, refreshDelay);
 		});
-
 	}else{
 		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
@@ -49,23 +44,16 @@ function stopBitmarkNodeLocal(){
 };
 
 function restartBitmarkNodeLocal(){
-
-	//Get if the program is running a function
-	const settings = require('electron').remote.require('electron-settings');
-
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		newNotification("Restarting container. This may take some time.");
-
 		//Get the promise from createContainerHelperLocal and refresh the frame
 		createContainerHelperLocal().then((result) => {
 			mainConsole.log('Success', result);
-			mainConsole.log('Container Created');
-
-			//Refresh the frame after 1 second
-			setTimeout(refreshFrame, 1000);
+			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
 			mainConsole.log('Error', error);
+			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
 		mainConsole.log("Function already running");
@@ -82,7 +70,6 @@ function setNetworkBitmarkLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		newNotification("Restarting container. This may take some time.");
-
 		//Checks the network
 		if(network === "testing"){
 			//Update network
@@ -95,23 +82,20 @@ function setNetworkBitmarkLocal(){
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
 				mainConsole.log('Success', result);
-				//Refresh the frame after 1 second
-				setTimeout(refreshFrame, 1000);
+				setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
 				mainConsole.log('Error', error);
+				setTimeout(refreshFrame, refreshDelay);
 			});
 		} else {
 			mainConsole.log("Already on bitmark");
-			//Let the user know the network is already bitmark
 			newNotification("The network is already set to 'bitmark'.");
 		}
-
 	}else{
 		mainConsole.log("Function already running");
 		newNotification("Another function is currently processing. Please allow for this action to complete before starting another one.");
 	}
 };
-
 //Changes the network to testing if it current isn't on it
 function setNetworkTestingLocal(){
 	// Fetch the user's preferred network
@@ -120,23 +104,16 @@ function setNetworkTestingLocal(){
 
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-
 		newNotification("Restarting container. This may take some time.");
-
 		//Checks the network
 		if(network === "bitmark"){
 			//Update network
 			settings.set('network', 'testing');
 			mainConsole.log("Changing to testing");
-			
-			//Lets the user know what is happening
 			newNotification("Changing the network to 'testing'. This may take some time.");
-			
-			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
 			  mainConsole.log('Success', result);
-			  //Refresh the frame after 1 second
-			  setTimeout(refreshFrame, 1000);
+			  setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
 			  mainConsole.log('Error', error);
 
@@ -161,8 +138,7 @@ function pullUpdateLocal(){
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
 		pullUpdate().then((result) => {
 			mainConsole.log('Success', result);
-			//Refresh the frame after 1 second
-			setTimeout(refreshFrame, 1000);
+			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
 			mainConsole.log('Error', error)
 		});
@@ -203,7 +179,7 @@ function createPreferencesWindowLocal(){
 
 //Reloads the iFrame
 function refreshFrame() {
-   document.getElementsByTagName('iframe')[0].src=document.getElementsByTagName('iframe')[0].src
+	document.getElementsByTagName('iframe')[0].src=document.getElementsByTagName('iframe')[0].src
 };
 
 

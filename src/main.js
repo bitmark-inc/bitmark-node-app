@@ -195,6 +195,7 @@ function autoUpdateCheck(){
 			reloadMain("index");
 		}, (error) => {
 			setActionRun(false);
+			reloadMain("index");
 			console.log('Error', error)
 		});
 	}
@@ -210,7 +211,12 @@ function autoUpdateCheck(){
 
 function nodeAppRun(){
 	const dir = settings.get('directory');
-	directoryCheckHelper(dir);
+	directoryCheckHelper(dir).then((result)=> {
+		console.log("directoryCheckHelper success")
+	}, (error) => {
+		newNotification("Directories Create Failed!Please Check Permission.");
+		return;
+	});
 	//Get the container status of bitmarkNode
 	exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
 	  //If the container is not setup, create it
@@ -218,8 +224,7 @@ function nodeAppRun(){
 		console.log('nodeAppRun error',err);
 			//Call container helper and wait for the promise to reload the page on success
 			const net = settings.get('network');
-			const dir = settings.get('directory');
-			console.log("createContainerHelperIPOnly start")		
+			const dir = settings.get('directory');		
 			createContainerHelperIPOnly(net, dir, isWin).then((result) => {
 				console.log('nodeAppRun Success', result);
 				reloadMain("index");
@@ -249,47 +254,6 @@ function nodeAppRun(){
 		reloadMain("index");
 	});
 };
-
-// Start the bitmarkNode Docker container
-function startBitmarkNode(){
-
-	//Return a promise to allow the program to refresh the window on completion
-	return new Promise((resolve, reject) => {
-
-		//Get the container status of bitmarkNode
-		setActionRun(true);
-		exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
-		  //If the container is not setup, create it
-		  if (err) {
-			newNotification("The Docker container is not setup. Please restart the application.");
-			setActionRun(false);
-		  	reject("Failed to start container");
-		  }
-
-		  //If the container is stopped, start it
-		  var str = stdout.toString().trim();
-		  if(str.includes('true')){
-			newNotification("The Docker container is already running.");
-			setActionRun(false);
-		  	reject("Container already running");
-		  }else{
-				//Start the container named bitmarkNode
-				setActionRun(true);
-				dockerStartNode().then((result) => {
-					setActionRun(false);
-					console.log('bitmark-node start', result);
-					newNotification("The Docker container has started.");
-				}, (error) => {
-					setActionRun(false);
-					console.log('Error', error);
-					newNotification("The Docker container has failed to start.");
-				});
-				resolve(`${stdout}`);
-		  }
-		});
-	});
-};
-
 function dockerLogin() {
 	return new Promise((resolve, reject) => {
 		//Stop the container named bitmarkNode
@@ -311,7 +275,7 @@ function dockerLogin() {
 function dockerStartNode(){
 	console.log("dockerStartNode start");
 	return new Promise((resolve, reject) => {
-		//Stop the container named bitmarkNode
+		//Start the container named bitmarkNode
 		exec("docker start bitmarkNode", (err, stdout, stderr) => {
 		  if (err) {
 			console.log("Failed to start container");
@@ -325,41 +289,84 @@ function dockerStartNode(){
 
 // Start the bitmarkNode Docker container without a notification
 function dockerStopNode(){
+	console.log("dockerStopNode start")
 	return new Promise((resolve, reject) => {
 		//Stop the container named bitmarkNode
-		exec("docker start bitmarkNode", (err, stdout, stderr) => {
+		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
 		  if (err) {
-				console.log("Failed to stop container");
+			console.log("Failed to stop container");
 		    reject("Failed to start container.")
-		  }
+		  } else {
 			console.log("Container stoped");
-		  	resolve('The Docker container has stoped')
+			resolve('The Docker container has stoped')
+		  }
 		});
 	});
 };
 
+// Start the bitmarkNode Docker container
+function startBitmarkNode(){
+
+	//Return a promise to allow the program to refresh the window on completion
+	return new Promise((resolve, reject) => {
+
+		//Get the container status of bitmarkNode
+		setActionRun(true);
+		exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
+		  //If the container is not setup, create it
+		  if (err) {
+			newNotification("The Docker container is not setup. Please restart the application.");
+			setActionRun(false);
+		  	reject("Failed to start container");
+		  }
+
+		  //If the container is stopped, start it
+		  var str = stdout.toString().trim();
+		  if(str.includes('true')){
+			setActionRun(false);
+			newNotification("The Docker container is already running.");
+		  	reject("Container already running");
+		  }else{
+				//Start the container named bitmarkNode
+				setActionRun(true);
+				dockerStartNode().then((result) => {
+					setActionRun(false);
+					console.log('bitmark-node start', result);
+					newNotification("The Docker container has started.");
+				}, (error) => {
+					setActionRun(false);
+					console.log('Error', error);
+					newNotification("The Docker container has failed to start.");
+				});
+				resolve(`${stdout}`);
+		  }
+		});
+	});
+};
+
+
 // Stop the bitmarkNode Docker container
 function stopBitmarkNode(){
 	newNotification("Stopping the Docker container. This may take some time.");
-	//Return a promise to allow the program to refresh the window on completion
 	setActionRun(true);
-	dockerStopNode().then((result) => {
-		setActionRun(false);
-		newNotification("The Docker container has stopped.");
-		resolve('The Docker container has stopped');
-	}, (error) => {
-		setActionRun(false);
-		newNotification("The Docker container has failed to stop.");
-		reject("Failed to stop container.");
-	});
-	mainWindow.reload();
+	//Return a promise to allow the program to refresh the window on completion
+	return new Promise((resolve,reject)=> {
+		dockerStopNode().then((result) => {
+			setActionRun(false);	
+			newNotification("The Docker container has stopped.");
+			resolve('The Docker container has stopped');
+		}, (error) => {
+			setActionRun(false);
+			newNotification("The Docker container has failed to stop.");
+			reject("Failed to stop container.");
+		});
+	} );
 };
 
 // Create the container with the network and directory given
 function createContainerHelperIPOnly(net, dir, isWin){
 	var auto_ip = settings.get('auto_ip');
 	var user_ip = settings.get('ip');
-	console.log("createContainerHelperIPOnly start");
 	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelper or local render process function)
 	return new Promise((resolve, reject) => {
 		//Check to see if auto_ip is turned on, if so get it, else use the users defined IP
@@ -505,19 +512,20 @@ function directoryCheck(dir){
 
 //Check directories
 function directoryCheckHelper(dir){
-
 	//Get each directory and store it in a variable
 	const folder = dir;
 	var bitmarknode = `${folder}/bitmark-node-data`;
 	var db = `${bitmarknode}/db`;
 	var data = `${bitmarknode}/data`;
 	var datatest = `${bitmarknode}/data-test`;
-
-	//Pass each variable to directoryCheck
-	directoryCheck(bitmarknode);
-	directoryCheck(db);
-	directoryCheck(data);
-	directoryCheck(datatest);
+	return new Promise((resolve, reject) => {
+		//Pass each variable to directoryCheck
+		directoryCheck(bitmarknode);
+		directoryCheck(db);
+		directoryCheck(data);
+		directoryCheck(datatest);
+	});
+	
 };
 
 //Create the file submenu
