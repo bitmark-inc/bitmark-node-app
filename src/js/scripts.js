@@ -4,6 +4,7 @@ var nodeConsole = require('console');
 var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
 var appStr = require('./appstring')
 
+
 /* Sidebar Functions */
 
 //Calls startBitmarkNodeSync located in main.js and refreshes the iFrame
@@ -134,7 +135,7 @@ function pullUpdateLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
-		pullUpdate().then((result) => {
+		pullUpdateSync().then((result) => {
 			mainConsole.log('Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {

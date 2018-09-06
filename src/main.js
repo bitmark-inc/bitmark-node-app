@@ -41,6 +41,7 @@ let mainWindow, prefWindow;
 let actionRun, curPage;
 
 var repo = "bitmark/bitmark-node";
+
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
 const autoUpdateCheckDelay = 5000;
 
@@ -78,7 +79,7 @@ app.on('ready', function() {
 	  defaultWidth: 1200,
 	  defaultHeight: 800
 	});
-		
+
 	// Create the window using the state information
 	mainWindow = new BrowserWindow({
 		// Set window location and size as what is was on close
@@ -94,9 +95,9 @@ app.on('ready', function() {
     	trasparent: true,
     	darkTheme: true
 	});
-
+	 win.webContents.openDevTools()
 	//Load the webpage
-	reloadMain("index")
+	reloadMain("index");
 	// Emitted when the window is closed.
 	mainWindow.on('closed', () => {
 	  // Dereference the window object, usually you would store windows
@@ -118,7 +119,9 @@ app.on('ready', function() {
 	//Ensure settings are initialized on startup
 	settingSetup();
 	//On application start-up, run nodeRun
+	//setTimeout(nodeAppRun, 3000);
 	nodeAppRun();
+	mainWindow.webContents.send('getRepo',getRepo()); //calling js method (async call)
 	//Check for check for updates if auto update is on after 2 seconds
 	setTimeout(autoUpdateCheck, autoUpdateCheckDelay);
 });
@@ -189,6 +192,10 @@ function settingSetup(){
 	if(settings.get('ip') === undefined){ settings.set('ip', `xxx.xxx.xxx.xxx`); }
 	if(settings.get('directory') === undefined){ settings.set('directory', dataDir); }
 };
+
+function getRepo() {
+	return repo;
+}
 
 function setActionRun(run) {
 	actionRun = run;
