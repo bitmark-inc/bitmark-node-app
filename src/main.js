@@ -23,7 +23,6 @@ if (require('electron-squirrel-startup')) { // eslint-disable-line global-requir
   app.quit();``
 }
 
-
 //Set dataDirectory
 var dataDir = `${userHome}`;
 //Check if platform is windows
@@ -42,8 +41,6 @@ let mainWindow, prefWindow;
 let actionRun, curPage;
 
 var repo = "bitmark/bitmark-node";
-//For testing purpose
-const minRepoLength = 3;  //if repo legth < minRepoLength  , we don't consider it is a valid repo 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
 const autoUpdateCheckDelay = 5000;
 
