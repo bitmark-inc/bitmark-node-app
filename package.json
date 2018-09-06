@@ -1,6 +1,6 @@
 {
-  "name": "bitmark-node",
-  "productName": "bitmark-node",
+  "name": "bitmark-node-app",
+  "productName": "bitmark-node-app",
   "version": "1.0.0",
   "description": "Bitmark Node User Interface",
   "productDescription": "User interface to view and control the Bitmark Node Docker Container. Read more at bitmark.org.",
@@ -12,11 +12,12 @@
     "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
-  "repository": "https://github.com/zizzard/Electron-Bitmark-Node",
+  "repository": "https://github.com/bitmark-inc/bitmark-node-app",
   "keywords": [
     "bitmark",
     "node",
     "bitmark-node",
+    "bitmark-node-app",
     "docker",
     "blockchain",
     "ui"
@@ -36,7 +37,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "electron_bitmark_node"
+            "name": "bitmark_node_app"
           }
         },
         {
@@ -58,6 +59,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.1.0",
+    "electron-args": "^0.1.0",
     "electron-context-menu": "^0.10.0",
     "electron-settings": "^3.2.0",
     "electron-squirrel-startup": "^1.0.0",

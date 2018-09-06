@@ -7,6 +7,7 @@ const ipc = electron.ipcMain //IPC used to display context menu (hamburger menu)
 const path = require('path'); //Used to interact with file paths
 const os = require('os'); //Used to determine the user's current OS
 var fs = require('fs'); //Used to check to see if directories exist/create ones
+const parseArgs = require('electron-args');// For electron arg
 
 //Packages (Name - Use (Link))
 const settings = require('electron-settings'); //Electron-Settings - Used to store user settings (https://github.com/nathanbuchar/electron-settings)
@@ -16,10 +17,12 @@ const { exec } = require('child_process'); //Electron Default Child Process - Us
 const windowStateKeeper = require('electron-window-state'); //Electron-Window-State - Keep window state from instances of program (https://www.npmjs.com/package/electron-window-state)
 const userHome = require('user-home'); //User-Home (https://github.com/sindresorhus/user-home)
 var appStr = require('./js/appstring');
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
-  app.quit();
+  app.quit();``
 }
+
 
 //Set dataDirectory
 var dataDir = `${userHome}`;
@@ -38,8 +41,35 @@ let mainWindow, prefWindow;
 // keep curPage for not reload url when it is in the same page
 let actionRun, curPage;
 
+var repo = "bitmark/bitmark-node";
+//For testing purpose
+const minRepoLength = 3;  //if repo legth < minRepoLength  , we don't consider it is a valid repo 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
 const autoUpdateCheckDelay = 5000;
+
+
+// Arg 
+// --repo : design for testing purpose
+const cli = parseArgs(`
+    bitmark-node-app
+
+    Usage
+      $ bitmark-node-app
+ 
+    Options
+      --help    show help
+      --repo    alternative repository of bitmark-node-app image in docker hub
+	Examples
+	  $ bitmark-node-app
+      $ bitmark-node-app --repo bitmark-test/bitmark-node
+`, {
+    alias: {
+        h: 'help'
+    },
+    default: {
+        auto: false
+    }
+});
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -61,7 +91,7 @@ app.on('ready', function() {
 		height: mainWindowState.height,
 		minWidth: 985,
 		minHeight: 440,
-		title: "Bitmark Node User Interface",
+		title: "Bitmark Node App",
 		icon: path.join(__dirname, 'assets/icons/app_icon.png'),
     	frame: false,
     	trasparent: true,
@@ -84,6 +114,9 @@ app.on('ready', function() {
 	// and restore the maximized or full screen state
 	mainWindowState.manage(mainWindow);
 
+	if (cli.flags.repo != undefined && cli.flags.repo != "") {
+		repo = cli.flags.repo;
+	}
 	
 	//Ensure settings are initialized on startup
 	settingSetup();
@@ -110,12 +143,9 @@ app.on('activate', () => {
   }
 });
 
-
 /* User Interface Functions */
-
 //Create the preferences window
 function createPreferencesWindow(){
-
 	//Define the preferences window
 	prefWindow = new BrowserWindow({
 		width: 850,
@@ -145,7 +175,7 @@ function createPreferencesWindow(){
 function newNotification(str){
 	notifier.notify(
 		{
-			title: "Bitmark Node",
+			title: "Bitmark Node App",
 			message: `${str}`,
 			icon: path.join(__dirname, 'assets/icons/app_icon.png'),
 			sound: true,
@@ -183,7 +213,7 @@ function reloadMain(page) {
 	curPage = page;
 };
 
-//Pull update if auto_update is on
+//pull update if auto_update is on
 function autoUpdateCheck(){
 	//get the auto update value
 	const auto_update = settings.get('auto_update');
@@ -191,7 +221,7 @@ function autoUpdateCheck(){
 		console.log("Checking for updates with auto updater");
 		//Call pullUpdate and wait for the promise to return the result
 		setActionRun(true);
-		pullUpdate().then((result) => {
+		pullUpdateSync().then((result) => {
 			//If it is a success (update installed) reload the window
 			setActionRun(false);
 			console.log('autoUpdateCheck Success', result);
@@ -204,8 +234,8 @@ function autoUpdateCheck(){
 };
 
 
-/* Terminal Calling Functions */
 
+// Entry point of automation on docker operations
 // Ran on startup and checks the status of the container
 //  1. If the container is not setup, it creates it
 //  2. If the container is not start, it starts it
@@ -223,7 +253,6 @@ function nodeAppRun(){
 	exec("docker inspect -f '{{.State.Running}}' bitmarkNode", (err, stdout, stderr) => {
 	  //If the container is not setup, create it
 	  if (err) {
-		console.log('nodeAppRun error',err);
 		//Call container helper and wait for the promise to reload the page on success
 		const net = settings.get('network');
 		const dir = settings.get('directory');		
@@ -249,8 +278,7 @@ function nodeAppRun(){
 					reloadMain("index");
 			   });
 		   }
-	  }
-	 
+	  } 
 	});
 };
 function dockerLoginSync() {
@@ -358,7 +386,7 @@ function stopBitmarkNodeSync(){
 	} );
 };
 
-// Create the container with the network
+// This function prepares ip and network to create a new container by calling createContainerSync
 function createContainerHelperSync(net, dir, isWin){
 	var auto_ip = settings.get('auto_ip');
 	var user_ip = settings.get('ip');
@@ -396,7 +424,7 @@ function createContainerHelperSync(net, dir, isWin){
 	});
 };
 
-//Create the docker container
+// This function stops and removes the container and creates a new container
 function createContainerSync(ip, net, dir, isWin){
 	//Check to make sure the needed directories exist
 	console.log("createContainer start")
@@ -410,11 +438,12 @@ function createContainerSync(ip, net, dir, isWin){
 				//Use the command suited for the platform
 		    	if(isWin){
 		    		//The windows command is the same as the linux command, except with \\ (\\ to delimit the single backslash) instead of /
-		    		var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}\\bitmark-node-data\\db:\\.config\\bitmark-node\\db -v ${dir}\\bitmark-node-data\\data:\\.config\\bitmark-node\\bitmarkd\\bitmark\\data -v ${dir}\\bitmark-node-data\\data-test:\\.config\\bitmark-node\\bitmarkd\\testing\\data bitmark/bitmark-node`
+					var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}\\bitmark-node-data\\db:\\.config\\bitmark-node\\db -v ${dir}\\bitmark-node-data\\data:\\.config\\bitmark-node\\bitmarkd\\bitmark\\data -v ${dir}\\bitmark-node-data\\data-test:\\.config\\bitmark-node\\bitmarkd\\testing\\data ` + repo;
 				}else{
-		    		var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data bitmark/bitmark-node`
+					var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data ` + repo;
 		    	}
 				//Run the command
+				console.log("************" + command)
 		    	exec(command, (err, stdout, stderr) => {
 					console.log("createContainerSync docker run end")
 		    		if (err) {
@@ -430,7 +459,7 @@ function createContainerSync(ip, net, dir, isWin){
 };
 
 // Check for updates from bitmark/bitmark-node
-function pullUpdate(){
+function pullUpdateSync(){
 	newNotification(appStr.checkUpdateWait);
 	//Return a promise to allow the program to refresh the window on completion
 	return new Promise((resolve, reject) => {
@@ -442,8 +471,8 @@ function pullUpdate(){
 				newNotification(appStr.notLoginWarn);
 			});
 		}
-		//Pull updates from the docker bitmark-node repo
-		exec("docker pull bitmark/bitmark-node", (err, stdout, stderr) => {
+		//Pull updates from the docker bitmark-node rep
+		exec("docker pull " + repo , (err, stdout, stderr) => {
 		  if (err) {
 		    // node couldn't execute the command
 		    newNotification(appStr.errorCheckUpdate);
@@ -452,13 +481,13 @@ function pullUpdate(){
 		  //get the output
 		  var str = stdout.toString();
 		  //Check to see if the up to date text is present
-		  if(str.indexOf("Image is up to date for bitmark/bitmark-node") !== -1){
+		  if(str.indexOf("Image is up to date for " + repo) !== -1){
 		  	newNotification(appStr.noUpdateFound);
 		  	//Rejects because an update was no found, even though there was no error
 		  	reject('No updates');
 		  }
 		  //Check to see if the updated text is present
-		  else if(str.indexOf("Downloaded newer image for bitmark/bitmark-node") !== -1){
+		  else if(str.indexOf("Downloaded newer image for " + repo) !== -1){
 			console.log("Updated");
 			newNotification(appStr.installUpdateSoftware);
 			//Call container helper and wait for the promise to reload the page on success
@@ -508,6 +537,7 @@ function dirCheckHelperSync(dir){
 	});
 	
 };
+
 
 //Create the file submenu
 var fileMenu = new Menu()

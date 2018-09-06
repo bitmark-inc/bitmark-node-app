@@ -8,7 +8,6 @@ var appStr = require('./appstring')
 
 //Calls startBitmarkNodeSync located in main.js and refreshes the iFrame
 function startBitmarkNodeLocal(){
-	mainConsole.log("startBitmarkNodeLocal start");
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		//Get the promise from startBitmarkNodeSync and refresh the frame
@@ -21,7 +20,7 @@ function startBitmarkNodeLocal(){
 		});
 		reloadMain("index");
 	}else{
-		mainConsole.log("Function already running");
+		mainConsole.log("startBitmarkNodeLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -39,7 +38,7 @@ function stopBitmarkNodeLocal(){
 			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
-		mainConsole.log("Function already running");
+		mainConsole.log("stopBitmarkNodeLocal:Function already running");
 		newNotification(appStr.containerHasStop);
 	}
 };
@@ -57,7 +56,7 @@ function restartBitmarkNodeLocal(){
 			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
-		mainConsole.log("Function already running");
+		mainConsole.log("restartBitmarkNodeLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -88,7 +87,7 @@ function setNetworkBitmarkLocal(){
 				setTimeout(refreshFrame, refreshDelay);
 			});
 		} else {
-			mainConsole.log("Already on bitmark");
+			mainConsole.log("setNetworkBitmarkLocal: Already on bitmark");
 			newNotification(appStr.networkAlreadyBitmark);
 		}
 	}else{
@@ -124,7 +123,7 @@ function setNetworkTestingLocal(){
 			newNotification(appStr.networkAlreadyTest);
 		}
 	}else{
-		mainConsole.log("Function already running");
+		mainConsole.log("setNetworkTestingLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -142,7 +141,7 @@ function pullUpdateLocal(){
 			mainConsole.log('Error', error)
 		});
 	}else{
-		mainConsole.log("Function already running");
+		mainConsole.log("pullUpdateLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -190,10 +189,8 @@ function createContainerHelperLocal(){
 	const settings = require('electron').remote.require('electron-settings');
 	var net = settings.get('network');
 	var dir = settings.get('directory');
-
 	//Get if the computer is a windows computer
 	var isWin = remote.getGlobal('process').platform === "win32";
-
 	//Return the promise from createContainerHelperIPOnly to allow the frame to be freshed
 	return new Promise((resolve, reject) => {
 		createContainerHelperSync(net, dir, isWin).then((result) => {
