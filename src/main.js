@@ -95,7 +95,6 @@ app.on('ready', function() {
     	trasparent: true,
     	darkTheme: true
 	});
-	 win.webContents.openDevTools()
 	//Load the webpage
 	reloadMain("index");
 	// Emitted when the window is closed.
