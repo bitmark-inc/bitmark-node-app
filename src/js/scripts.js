@@ -1,5 +1,5 @@
 const { ipcRenderer, remote } = require('electron');
-const refreshDelay = 300; // delay of refresh frame
+const refreshDelay = 1000; // delay of refresh frame
 var nodeConsole = require('console');
 var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
 var appStr = require('./appstring')
