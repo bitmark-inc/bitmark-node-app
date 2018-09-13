@@ -449,7 +449,7 @@ function createContainerSync(ip, net, dir, isWin){
 					var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data ` + repo;
 		    	}
 				//Run the command
-	
+			
 		    	exec(command, (err, stdout, stderr) => {
 					consoleStd.log('[main]', "createContainerSync docker run end")
 		    		if (err) {
