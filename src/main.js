@@ -17,6 +17,9 @@ const { exec } = require('child_process'); //Electron Default Child Process - Us
 const windowStateKeeper = require('electron-window-state'); //Electron-Window-State - Keep window state from instances of program (https://www.npmjs.com/package/electron-window-state)
 const userHome = require('user-home'); //User-Home (https://github.com/sindresorhus/user-home)
 var appStr = require('./js/appstring');
+//ForRedirect Log
+var nodeConsole = require('console');
+var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -207,10 +210,10 @@ function isActionRun() {
 function reloadMain(page) {
 	if (curPage != page) {
 		mainWindow.loadURL(`file://${__dirname}/`+ page + `.html`);
-		console.log("load new page:",page);
+		consoleStd.log('[main]', "load new page:",page);
 	} else {
 		mainWindow.reload();
-		console.log("mainWindow reload:", curPage);
+		consoleStd.log('[main]', "mainWindow reload:", curPage);
 
 	}	
 	curPage = page;
@@ -221,17 +224,17 @@ function autoUpdateCheck(){
 	//get the auto update value
 	const auto_update = settings.get('auto_update');
 	if(auto_update === true){
-		console.log("Checking for updates with auto updater");
+		consoleStd.log('[main]', "Checking for updates with auto updater");
 		//Call pullUpdate and wait for the promise to return the result
 		setActionRun(true);
 		pullUpdateSync().then((result) => {
 			//If it is a success (update installed) reload the window
 			setActionRun(false);
-			console.log('autoUpdateCheck Success', result);
+			consoleStd.log('[main]', 'autoUpdateCheck Success', result);
 			reloadMain("index");
 		}, (error) => { // check error or no need to be updated
 			setActionRun(false);
-			console.log('Error', error)
+			consoleStd.log('[main]', 'Error', error)
 		});
 	}
 };
@@ -247,7 +250,7 @@ function autoUpdateCheck(){
 function nodeAppRun(){
 	const dir = settings.get('directory');
 	dirCheckHelperSync(dir).then((result)=> {
-		console.log("directoryCheckHelper success")
+		consoleStd.log('[main]', "directoryCheckHelper success")
 	}, (error) => {
 		newNotification(appStr.dirCheckFailed);
 		return;
@@ -260,10 +263,10 @@ function nodeAppRun(){
 		const net = settings.get('network');
 		const dir = settings.get('directory');		
 		createContainerHelperSync(net, dir, isWin).then((result) => {
-			console.log('nodeAppRun Success', result);
+			consoleStd.log('[main]', 'nodeAppRun Success', result);
 			reloadMain("index");
 		}, (error) => {
-			console.log('createContainerHelperSync Error', error);
+			consoleStd.log('[main]', 'createContainerHelperSync Error', error);
 			return; //terminate, don't have to start container
 		});
 	  } else {
@@ -273,11 +276,11 @@ function nodeAppRun(){
 			  setActionRun(true);
 			   dockerStartSync().then((result) => {
 				setActionRun(false);
-				   console.log('bitmark-node start', result);
+				   consoleStd.log('[main]', 'bitmark-node start', result);
 				   reloadMain("index");
 			   }, (error) => {
 					setActionRun(false);
-					console.log('Error', error);
+					consoleStd.log('[main]', 'Error', error);
 					reloadMain("index");
 			   });
 		   }
@@ -303,15 +306,15 @@ function dockerLoginSync() {
 
 // Start the bitmarkNode Docker container without a notification
 function dockerStartSync(){
-	console.log("dockerStartNode start");
+	consoleStd.log('[main]', "dockerStartNode start");
 	return new Promise((resolve, reject) => {
 		//Start the container named bitmarkNode
 		exec("docker start bitmarkNode", (err, stdout, stderr) => {
 		  if (err) {
-			console.log("Failed to start container");
+			consoleStd.log('[main]', "Failed to start container");
 		    reject("Failed to start container.")
 		  }
-			console.log("Container started");
+			consoleStd.log('[main]', "Container started");
 			resolve('The Docker container has started')
 		});
 	});
@@ -323,10 +326,10 @@ function dockerStopSync(){
 		//Stop the container named bitmarkNode
 		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
 		  if (err) {
-			console.log("Failed to stop container");
+			consoleStd.log('[main]', "Failed to stop container");
 		    reject("Failed to start container.")
 		  } else {
-			console.log("Container stoped");
+			consoleStd.log('[main]', "Container stoped");
 			resolve('The Docker container has stoped')
 		  }
 		});
@@ -358,11 +361,11 @@ function startBitmarkNodeSync(){
 				setActionRun(true);
 				dockerStartSync().then((result) => {
 					setActionRun(false);
-					console.log('bitmark-node start', result);
+					consoleStd.log('[main]', 'bitmark-node start', result);
 					newNotification(appStr.containerHasStart);
 				}, (error) => {
 					setActionRun(false);
-					console.log('Error', error);
+					consoleStd.log('[main]', 'Error', error);
 					newNotification(appStr.containerFailStart);
 				});
 				resolve(`${stdout}`);
@@ -415,11 +418,11 @@ function createContainerHelperSync(net, dir, isWin){
 		} else {
 			//Get the promise from createContainer and return the result
 			createContainerSync(user_ip, net, dir, isWin).then((result) => {
-				console.log("createContainerHelperSync : manual ip success")
+				consoleStd.log('[main]', "createContainerHelperSync : manual ip success")
 				setActionRun(false);
 				resolve(result);
 			}, (error) => {
-				console.log("createContainerHelperSync : manual ip false")
+				consoleStd.log('[main]', "createContainerHelperSync : manual ip false")
 				setActionRun(false);
 				reject(error);
 			});
@@ -430,14 +433,14 @@ function createContainerHelperSync(net, dir, isWin){
 // This function stops and removes the container and creates a new container
 function createContainerSync(ip, net, dir, isWin){
 	//Check to make sure the needed directories exist
-	console.log("createContainer start")
+	consoleStd.log('[main]', "createContainer start")
 	//Return a promise to allow the program to refresh the window on completion (passed it to createContainerHelperLocalIP)
 	return new Promise((resolve, reject) => {
 		//Attempt to remove and stop the container before creating the container.
 		exec("docker stop bitmarkNode", (err, stdout, stderr) => {
-			console.log("createContainerSync docker stop start")
+			consoleStd.log('[main]', "createContainerSync docker stop start")
 			exec("docker rm bitmarkNode", (err, stdout, stderr) => {
-				console.log("createContainerSync docker rm start")
+				consoleStd.log('[main]', "createContainerSync docker rm start")
 				//Use the command suited for the platform
 		    	if(isWin){
 		    		//The windows command is the same as the linux command, except with \\ (\\ to delimit the single backslash) instead of /
@@ -446,9 +449,9 @@ function createContainerSync(ip, net, dir, isWin){
 					var command = `docker run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data ` + repo;
 		    	}
 				//Run the command
-				console.log("************" + command)
+	
 		    	exec(command, (err, stdout, stderr) => {
-					console.log("createContainerSync docker run end")
+					consoleStd.log('[main]', "createContainerSync docker run end")
 		    		if (err) {
 		        		newNotification(app.conatinerCreateFail);
 		        		reject("Failed to create container");
@@ -470,7 +473,7 @@ function pullUpdateSync(){
 			dockerLoginSync().then((result) => { 
 				//login successfully, do nothing.
 			}, (error) => {
-				console.log('Error', error);
+				consoleStd.log('[main]', 'Error', error);
 				newNotification(appStr.notLoginWarn);
 			});
 		}
@@ -491,13 +494,13 @@ function pullUpdateSync(){
 		  }
 		  //Check to see if the updated text is present
 		  else if(str.indexOf("Downloaded newer image for " + repo) !== -1){
-			console.log("Updated");
+			consoleStd.log('[main]', "Updated");
 			newNotification(appStr.installUpdateSoftware);
 			//Call container helper and wait for the promise to reload the page on success
 			const net = settings.get('network');
 			const dir = settings.get('directory');
 			createContainerHelperSync(net, dir, isWin).then((result) => {
-				console.log('pullUpdate Success', result);
+				consoleStd.log('[main]', 'pullUpdate Success', result);
 				newNotification(appStr.nodeUpdated);
 				resolve(result);
 			}, (error) => {
@@ -517,9 +520,9 @@ function dirCheckSync(dir){
 	//If the directory doesn't exist, create it
 	if (!fs.existsSync(dir)){
 	    fs.mkdirSync(dir);
-	    console.log(`The directory ${dir} does not exist. Creating it now.`);
+	    consoleStd.log('[main]', `The directory ${dir} does not exist. Creating it now.`);
 	}else{
-		console.log("The directory exists.")
+		consoleStd.log('[main]',`The directory ${dir} exist.`)
 	}
 };
 

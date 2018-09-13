@@ -1,7 +1,7 @@
 const { ipcRenderer, remote } = require('electron');
 const refreshDelay = 300; // delay of refresh frame
 var nodeConsole = require('console');
-var mainConsole = new nodeConsole.Console(process.stdout, process.stderr);
+var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
 var appStr = require('./appstring')
 
 
@@ -13,15 +13,15 @@ function startBitmarkNodeLocal(){
 	if(!isActionRun()){
 		//Get the promise from startBitmarkNodeSync and refresh the frame
 		startBitmarkNodeSync().then((result) => {
-			mainConsole.log('startBitmarkNodeLocal Success', result);
+			consoleStd.log('[menu]', 'startBitmarkNodeLocal Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			mainConsole.log('startBitmarkNodeLocal Error', error);
+			consoleStd.log('[menu]', 'startBitmarkNodeLocal Error', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
 		reloadMain("index");
 	}else{
-		mainConsole.log("startBitmarkNodeLocal: Function already running");
+		consoleStd.log('[menu]', "startBitmarkNodeLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -32,14 +32,14 @@ function stopBitmarkNodeLocal(){
 	if(!isActionRun()){
 		//Get the promise from stopBitmarkNodeSync and refresh the frame
 		stopBitmarkNodeSync().then((result) => {
-			mainConsole.log('stopBitmarkNodeLocal Success', result);
+			consoleStd.log('[menu]', 'stopBitmarkNodeLocal Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			mainConsole.log('stopBitmarkNodeLocal Error', error);
+			consoleStd.log('[menu]', 'stopBitmarkNodeLocal Error', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
-		mainConsole.log("stopBitmarkNodeLocal:Function already running");
+		consoleStd.log('[menu]', "stopBitmarkNodeLocal:Function already running");
 		newNotification(appStr.containerHasStop);
 	}
 };
@@ -50,14 +50,14 @@ function restartBitmarkNodeLocal(){
 		newNotification(appStr.containerRestartWait);
 		//Get the promise from createContainerHelperLocal and refresh the frame
 		createContainerHelperLocal().then((result) => {
-			mainConsole.log('Success', result);
+			consoleStd.log('[menu]', 'Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			mainConsole.log('Error', error);
+			consoleStd.log('[menu]', 'Error', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
-		mainConsole.log("restartBitmarkNodeLocal: Function already running");
+		consoleStd.log('[menu]', "restartBitmarkNodeLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -75,24 +75,24 @@ function setNetworkBitmarkLocal(){
 		if(network === "testing"){
 			//Update network
 			settings.set('network', 'bitmark');
-			mainConsole.log("Changing to bitmark");
+			consoleStd.log('[menu]', "Changing to bitmark");
 			
 			//Lets the user know what is happening
 			newNotification(appStr.networkChangeBitmarkWait);
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
-				mainConsole.log('Success', result);
+				consoleStd.log('[menu]', 'Success', result);
 				setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
-				mainConsole.log('Error', error);
+				consoleStd.log('[menu]', 'Error', error);
 				setTimeout(refreshFrame, refreshDelay);
 			});
 		} else {
-			mainConsole.log("setNetworkBitmarkLocal: Already on bitmark");
+			consoleStd.log('[menu]', "setNetworkBitmarkLocal: Already on bitmark");
 			newNotification(appStr.networkAlreadyBitmark);
 		}
 	}else{
-		mainConsole.log("Function already running");
+		consoleStd.log('[menu]', "Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -109,22 +109,22 @@ function setNetworkTestingLocal(){
 		if(network === "bitmark"){
 			//Update network
 			settings.set('network', 'testing');
-			mainConsole.log("Changing to testing");
+			consoleStd.log('[menu]', "Changing to testing");
 			newNotification("Changing the network to 'testing'. This may take some time.");
 			createContainerHelperLocal().then((result) => {
-			mainConsole.log('Success', result);
+			consoleStd.log('[menu]', 'Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
-			  mainConsole.log('Error', error);
+			  consoleStd.log('[menu]', 'Error', error);
 
 			});
 		} else {
-			mainConsole.log("Already on testing");
+			consoleStd.log('[menu]', "Already on testing");
 			//Let the user know the network is already bitmark
 			newNotification(appStr.networkAlreadyTest);
 		}
 	}else{
-		mainConsole.log("setNetworkTestingLocal: Function already running");
+		consoleStd.log('[menu]', "setNetworkTestingLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
@@ -136,13 +136,13 @@ function pullUpdateLocal(){
 	if(!isActionRun()){
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
 		pullUpdateSync().then((result) => {
-			mainConsole.log('Success', result);
+			consoleStd.log('[menu]', 'Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			mainConsole.log('Error', error)
+			consoleStd.log('[menu]', 'Error', error)
 		});
 	}else{
-		mainConsole.log("pullUpdateLocal: Function already running");
+		consoleStd.log('[menu]', "pullUpdateLocal: Function already running");
 		newNotification(appStr.anotherActionIsRunning);
 	}
 };
