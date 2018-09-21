@@ -222,7 +222,8 @@ function getDockerPath() {
     '/usr/bin/',
     '/usr/sbin/',
     '/usr/local/bin/',
-    '/usr/local/sbin/'
+    '/usr/local/sbin/',
+    'C:\\Program Files\\Docker\\Docker\\resources\\bin\\'
   ];
 
   // default assume docker path is set
@@ -236,7 +237,20 @@ function getDockerPath() {
     }
   }
 
+  // show warning message if docker is not found in default paths
+  if (!path) {
+    showDockerNotFoundNotification();
+  }
+
   return path;
+}
+
+function showDockerNotFoundNotification() {
+  let errMsg = appStr.dockerNotFoundLinux;
+  if (isWin) {
+    errMsg = appStr.dockerNotFoundWindows;
+  }
+  newNotification(errMsg);
 }
 
 function getRepo() {
@@ -520,16 +534,13 @@ function createContainerSync(ip, net, dir, isWin) {
       exec(dockerCmd + ' rm bitmarkNode', (err, stdout, stderr) => {
         consoleStd.log('[main]', 'createContainerSync docker rm start');
         //Use the command suited for the platform
+        var baseCmd = `${dockerCmd} run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data `;
         var command;
         if (isWin) {
           //The windows command is the same as the linux command, except with \\ (\\ to delimit the single backslash) instead of /
-          command =
-            `${dockerCmd} run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}\\bitmark-node-data\\db:\\.config\\bitmark-node\\db -v ${dir}\\bitmark-node-data\\data:\\.config\\bitmark-node\\bitmarkd\\bitmark\\data -v ${dir}\\bitmark-node-data\\data-test:\\.config\\bitmark-node\\bitmarkd\\testing\\data ` +
-            repo;
+          command = baseCmd.replace(/\//g, '//') + repo;
         } else {
-          command =
-            `${dockerCmd} run -d --name bitmarkNode -p 9980:9980 -p 2136:2136 -p 2130:2130 -e PUBLIC_IP=${ip} -e NETWORK=${net} -v ${dir}/bitmark-node-data/db:/.config/bitmark-node/db -v ${dir}/bitmark-node-data/data:/.config/bitmark-node/bitmarkd/bitmark/data -v ${dir}/bitmark-node-data/data-test:/.config/bitmark-node/bitmarkd/testing/data ` +
-            repo;
+          command = baseCmd + repo;
         }
         //Run the command
 
