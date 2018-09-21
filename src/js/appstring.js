@@ -26,10 +26,6 @@ const containerCreateSucces = 'The Docker container was created successfully.';
 const checkUpdateWait = 'Checking for updates. This may take some time.';
 const notLoginWarn =
   'Docker is not logged in. Sometime, it fail to pull due to not login. You could configure the Docker client to not automatically use a credential from your home directory.';
-const dockerNotFoundWindows =
-  'bitmark-node-app does not find docker executable file. Please set your docker executable path to system path in system settings.';
-const dockerNotFoundLinux =
-  'bitmark-node-app does not find docker executable file. Please import your docker executable path in .profile or .bashrc.';
 
 //update
 const errorCheckUpdate =
@@ -62,8 +58,6 @@ exports.conatinerCreateFail = conatinerCreateFail;
 exports.containerCreateSucces = containerCreateSucces;
 exports.checkUpdateWait = checkUpdateWait;
 exports.notLoginWarn = notLoginWarn;
-exports.dockerNotFoundWindows = dockerNotFoundWindows;
-exports.dockerNotFoundLinux = dockerNotFoundLinux;
 exports.errorCheckUpdate = errorCheckUpdate;
 exports.noUpdateFound = noUpdateFound;
 exports.installUpdateSoftware = installUpdateSoftware;

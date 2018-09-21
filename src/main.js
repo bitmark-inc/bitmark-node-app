@@ -237,20 +237,7 @@ function getDockerPath() {
     }
   }
 
-  // show warning message if docker is not found in default paths
-  if (!path) {
-    showDockerNotFoundNotification();
-  }
-
   return path;
-}
-
-function showDockerNotFoundNotification() {
-  let errMsg = appStr.dockerNotFoundLinux;
-  if (isWin) {
-    errMsg = appStr.dockerNotFoundWindows;
-  }
-  newNotification(errMsg);
 }
 
 function getRepo() {
@@ -337,6 +324,7 @@ function nodeAppRun() {
             return; //terminate, don't have to start container
           }
         );
+        newNotification(appStr.containerFailStart);
       } else {
         //If the container is stopped, start it
         var str = stdout.toString().trim();
