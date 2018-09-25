@@ -54,11 +54,11 @@ The Bitmark node software is distributed as a standalone [Docker container](http
 
 #### Download the Bitmark Node User Interface
 - Linux
-    * [Debain Package](https://github.com/zizzard/Electron-Bitmark-Node-Packages/raw/master/bitmark-node-1.0.0-amd64.deb)
-    * [Red Hat Package Manager](https://github.com/zizzard/Electron-Bitmark-Node-Packages/raw/master/bitmark-node-1.0.0.x86_64.rpm)
-- [Windows](https://github.com/zizzard/Electron-Bitmark-Node-Packages/raw/master/bitmark-node-1.0.0-exe.7z)
-- [MacOS](https://github.com/zizzard/Electron-Bitmark-Node-Packages/raw/master/bitmark-node-1.0.0-darwin-x64.zip)
+- [Debain Package](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/linux/bitmark-node-app_1.0.0_amd64.deb)
+- [Windows](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/windows/x64/bitmark-node-app-1.0.0+Setup.exe)
+- [MacOS](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/mac/bitmark-node-app-darwin-x64-1.0.0.zip)
 
+** You need to have docker permission to run bitmark-node-app. **
 When the program is start, it will create the Docker container to run the Bitmark Node software, please note that this will take some time, as it has to download the Bitmark node software. 
 
 ## User Interface Walkthrough
@@ -185,6 +185,12 @@ To build the application, use:
 To package the application, use:
 
 ```$ electron-forge make```
+
+### Publish
+To publish the application, use:
+
+```$ electron-forge publish```
+
 
 <sub>_Creates a package for current OS only_</sub>
 >>>>>>> r1remote/master
