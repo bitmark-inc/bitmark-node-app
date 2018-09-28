@@ -2,7 +2,7 @@ const { ipcRenderer, remote } = require('electron');
 const refreshDelay = 1000; // delay of refresh frame
 var nodeConsole = require('console');
 var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
-var appStr = require('./appstring')
+//var appStr = require('./appstring')
 
 
 /* Sidebar Functions */
@@ -22,7 +22,7 @@ function startBitmarkNodeLocal(){
 		reloadMain("index");
 	}else{
 		consoleStd.log('[menu]', "startBitmarkNodeLocal: Function already running");
-		newNotification(appStr.anotherActionIsRunning);
+		newNotification(anotherActionIsRunning);
 	}
 };
 
@@ -40,14 +40,14 @@ function stopBitmarkNodeLocal(){
 		});
 	}else{
 		consoleStd.log('[menu]', "stopBitmarkNodeLocal:Function already running");
-		newNotification(appStr.containerHasStop);
+		newNotification(containerHasStop);
 	}
 };
 
 function restartBitmarkNodeLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		newNotification(appStr.containerRestartWait);
+		newNotification(containerRestartWait);
 		//Get the promise from createContainerHelperLocal and refresh the frame
 		createContainerHelperLocal().then((result) => {
 			consoleStd.log('[menu]', 'Success', result);
@@ -58,7 +58,7 @@ function restartBitmarkNodeLocal(){
 		});
 	}else{
 		consoleStd.log('[menu]', "restartBitmarkNodeLocal: Function already running");
-		newNotification(appStr.anotherActionIsRunning);
+		newNotification(anotherActionIsRunning);
 	}
 };
 
@@ -70,7 +70,7 @@ function setNetworkBitmarkLocal(){
 
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		newNotification(appStr.containerRestartWait);
+		newNotification(containerRestartWait);
 		//Checks the network
 		if(network === "testing"){
 			//Update network
@@ -78,7 +78,7 @@ function setNetworkBitmarkLocal(){
 			consoleStd.log('[menu]', "Changing to bitmark");
 			
 			//Lets the user know what is happening
-			newNotification(appStr.networkChangeBitmarkWait);
+			newNotification(networkChangeBitmarkWait);
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
 				consoleStd.log('[menu]', 'Success', result);
@@ -89,11 +89,11 @@ function setNetworkBitmarkLocal(){
 			});
 		} else {
 			consoleStd.log('[menu]', "setNetworkBitmarkLocal: Already on bitmark");
-			newNotification(appStr.networkAlreadyBitmark);
+			newNotification(networkAlreadyBitmark);
 		}
 	}else{
 		consoleStd.log('[menu]', "Function already running");
-		newNotification(appStr.anotherActionIsRunning);
+		newNotification(anotherActionIsRunning);
 	}
 };
 //Changes the network to testing if it current isn't on it
@@ -104,7 +104,7 @@ function setNetworkTestingLocal(){
 
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		newNotification(appStr.containerRestartWait);
+		newNotification(containerRestartWait);
 		//Checks the network
 		if(network === "bitmark"){
 			//Update network
@@ -121,11 +121,11 @@ function setNetworkTestingLocal(){
 		} else {
 			consoleStd.log('[menu]', "Already on testing");
 			//Let the user know the network is already bitmark
-			newNotification(appStr.networkAlreadyTest);
+			newNotification(networkAlreadyTest);
 		}
 	}else{
 		consoleStd.log('[menu]', "setNetworkTestingLocal: Function already running");
-		newNotification(appStr.anotherActionIsRunning);
+		newNotification(anotherActionIsRunning);
 	}
 };
 
@@ -143,7 +143,7 @@ function pullUpdateLocal(){
 		});
 	}else{
 		consoleStd.log('[menu]', "pullUpdateLocal: Function already running");
-		newNotification(appStr.anotherActionIsRunning);
+		newNotification(anotherActionIsRunning);
 	}
 };
 
