@@ -79,11 +79,7 @@
   <script type="text/javascript">
 
     window.onload = function() {
-<<<<<<< HEAD
-      const dockerCmd = settings.get('docker_cmd');      
-=======
       const dockerCmd = settings.get('docker_cmd');
->>>>>>> f817109d66702c5133e17ec52c6f99fd3bf0df5a
       exec(dockerCmd + " docker inspect bitmarkNode", (err, stdout, stderr) => {
         //if there is an error, then the container is not up
         var str = stderr.toString().trim();
