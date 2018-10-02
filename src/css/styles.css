@@ -89,7 +89,7 @@ body {
 
 .tooltip .tooltiptext {
     visibility: hidden;
-    background-color: #293238;
+    background-color: #000000;
     color: #fff;
     text-align: left;
     padding: 14.22px 16px 15px 14px;
