@@ -1,45 +1,45 @@
 //Notifications
 // directory check
-const dirCheckFailed = 'Directories Create Failed!Please Check Permission.';
-const dirCheckSuccess = 'Directories Create Success!';
+dirCheckFailed = 'Directories Create Failed!Please Check Permission.';
+dirCheckSuccess = 'Directories Create Success!';
 
 // action running
-const anotherActionIsRunning =
+anotherActionIsRunning =
   'Another function is currently processing. Please allow for this action to complete before starting another one.';
 
 // IP Check
-const maualIPNotValidCheckIP =
+maualIPNotValidCheckIP =
   'You have turned on manual IP setup, though your IP address is invalid. Please turn on automatic IP setup, or check your manually entered IP address. ';
 
 //containers
-const containerNotSetupRestartApp =
+containerNotSetupRestartApp =
   'The Docker container is not setup. Please restart the application.';
-const containerAlreadyRuning = 'The Docker container is already running.';
-const containerHasStart = 'The Docker container has started.';
-const containerFailStart = 'The Docker container has failed to start.';
-const containerStopTakeTime = 'Stopping the Docker container. This may take some time.';
-const containerHasStop = 'The Docker container has stopped.';
-const containerFailStop = 'The Docker container has failed to stop.';
-const conatinerCreateFail =
+containerAlreadyRuning = 'The Docker container is already running.';
+containerHasStart = 'The Docker container has started.';
+containerFailStart = 'The Docker container has failed to start.';
+containerStopTakeTime = 'Stopping the Docker container. This may take some time.';
+containerHasStop = 'The Docker container has stopped.';
+containerFailStop = 'The Docker container has failed to stop.';
+conatinerCreateFail =
   "The Docker container failed to be created. Ensure you're connected to the Internet and Docker is running properly.";
-const containerCreateSucces = 'The Docker container was created successfully.';
-const checkUpdateWait = 'Checking for updates. This may take some time.';
-const notLoginWarn =
+containerCreateSucces = 'The Docker container was created successfully.';
+checkUpdateWait = 'Checking for updates. This may take some time.';
+notLoginWarn =
   'Docker is not logged in. Sometime, it fail to pull due to not login. You could configure the Docker client to not automatically use a credential from your home directory.';
 
 //update
-const errorCheckUpdate =
+errorCheckUpdate =
   'There was an error checking for an update. Please check your Internet connection and restart the Docker application.';
-const noUpdateFound = 'No updates to the Bitmark Node software have been found.';
-const installUpdateSoftware =
+noUpdateFound = 'No updates to the Bitmark Node software have been found.';
+installUpdateSoftware =
   'The Bitmark Node software has downloaded. Installing updates now.';
-const nodeUpdated = 'The Bitmark Node software has been updated.';
-const containerRestartWait = 'Restarting container. This may take some time.';
+nodeUpdated = 'The Bitmark Node software has been updated.';
+containerRestartWait = 'Restarting container. This may take some time.';
 //network change
-const networkChangeBitmarkWait =
+networkChangeBitmarkWait =
   "Changing the network to 'bitmark'. This may take some time.";
-const networkAlreadyBitmark = "The network is already set to 'bitmark'.";
-const networkAlreadyTest = "The network is already set to 'testing'.";
+networkAlreadyBitmark = "The network is already set to 'bitmark'.";
+networkAlreadyTest = "The network is already set to 'testing'.";
 
 //Exports
 exports.dirCheckFailed = dirCheckFailed;
