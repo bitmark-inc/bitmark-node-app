@@ -1,107 +1,99 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Bitmark Node User Interface</title>
-    <script src="main.js"></script>
-    <script src="js/scripts.js"></script>
-    <script src="js/jquery-1.7.1.js"></script>
-    <link rel="stylesheet" type="text/css" href="css/typography.css">
-    <link rel="stylesheet" href="css/styles.css">
-  </head>
-  <body>
-    <div class="title-bar">
-      <div class="wc-box-menu">
-        <div class="menu" id="menu"><div class="bar" id="menu"></div></div>
-      </div>
-      <div class="wc-box">
-        <div class="minimize" id="min"></div>
-        <div class="maximize" id="max"></div>
-        <div class="close" id="close"></div>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bitmark Node User Interface</title>
+  <script src="main.js"></script>
+  <script src="js/scripts.js"></script>
+  <script src="js/jquery-1.7.1.js"></script>
+  <link rel="stylesheet" type="text/css" href="css/typography.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div class="title-bar">
+    <div class="wc-box-menu">
+      <div class="menu" id="menu">
+        <div class="bar" id="menu"></div>
       </div>
     </div>
+    <div class="wc-box">
+      <div class="minimize" id="min"></div>
+      <div class="maximize" id="max"></div>
+      <div class="close" id="close"></div>
+    </div>
+  </div>
 
-    <div class="sidenav">
-      <div class="title-area">
-        <div class="groups">
-          <a class="title" onClick="startBitmarkNodeLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Start container
-              <span class="tooltiptext">If the container is stopped, this will start the container. This will not update your IP address.</span>
-            </div>
-          </a>
-          <a class="title" onClick="stopBitmarkNodeLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Stop container
-              <span class="tooltiptext">If the container is running, this will stop the container. This will not update your IP address.</span>
-            </div>
-          </a>
-          <a class="title" onClick="restartBitmarkNodeLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Restart container
-              <span class="tooltiptext">This will start the container if it is not running, or restart the container if it is running. If you made any changes to your IP address, this will update your that.</span>
-            </div>
-          </a>
-        </div>
-        <div class="groups">
-          <a class="title" onClick="setNetworkBitmarkLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Switch to Bitmark
-              <span class="tooltiptext">If the current network is 'testing', this will change the container to the 'bitmark' network.</span>
-            </div>
-          </a>
-          <a class="title" onClick="setNetworkTestingLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Switch to testing
-              <span class="tooltiptext">If the current network is 'bitmark', this will change the container to the 'testing' network.</span>
-            </div>
-          </a>
-        </div>
-        <div class="groups">
-          <a class="title" onClick="pullUpdateLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Check for updates
-              <span class="tooltiptext">If an update to the container is found, it will automatically be installed and the container will restart.</span>
-            </div>
-          </a>
-          <a class="title" onClick="createPreferencesWindowLocal();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Show preferences
-              <span class="tooltiptext">Show the application preferences menu used to manage update and IP settings.</span>
-            </div>
-          </a>
-          <a class="title" onClick="refreshFrame();" style="cursor: pointer; cursor: hand;">
-            <div class="tooltip">Refresh window
-              <span class="tooltiptext">Refresh the application window.</span>
-            </div>
-          </a>
-        </div>
+  <div class="sidenav">
+    <div class="title-area">
+      <div class="groups">
+        <a class="title" onClick="startBitmarkNodeLocal();" style="cursor: pointer" data-tooltip="If the container is stopped, this will start the container. This will not update your IP address.">
+          Start container
+        </a>
+        <a class="title" onClick="stopBitmarkNodeLocal();" style="cursor: pointer" data-tooltip="If the container is running, this will stop the container. This will not update your IP address.">
+          Stop container
+        </a>
+        <a class="title" onClick="restartBitmarkNodeLocal();" style="cursor: pointer" data-tooltip="This will start the container if it is not running, or restart the container if it is running. If you made any
+        changes to your IP address, this will update your that.">
+          Restart container
+        </a>
+      </div>
+      <div class="groups">
+        <a class="title" onClick="setNetworkBitmarkLocal();" style="cursor: pointer" data-tooltip="If the current network is 'testing', this will change the container to the 'bitmark' network.">
+          Switch to Bitmark
+        </a>
+        <a class="title" onClick="setNetworkTestingLocal();" style="cursor: pointer" data-tooltip="If the current network is 'bitmark', this will change the container to the 'testing' network.">
+          Switch to testing
+        </a>
+      </div>
+      <div class="groups">
+        <a class="title" onClick="pullUpdateLocal();" style="cursor: pointer" data-tooltip="If an update to the container is found, it will automatically be installed and the container will restart.">
+          Check for updates
+        </a>
+        <a class="title" onClick="createPreferencesWindowLocal();" style="cursor: pointer" data-tooltip="Show the application preferences menu used to manage update and IP settings.">
+          Show preferences
+        </a>
+        <a class="title" onClick="refreshFrame();" style="cursor: pointer" data-tooltip="Refresh the application window.">
+          Refresh window
+        </a>
       </div>
     </div>
-    <div id="main" class="main">
-      <iframe src="http://localhost:9980" class="frame"></iframe>
-      <div class="main-text" id="main-text">THE DOCKER CONTAINER IS NOT READY YET!</div>
-    </div>
-  </body>
-  <script type="text/javascript">
+  </div>
+  <div id="main" class="main">
+    <iframe src="http://localhost:9980" class="frame"></iframe>
+    <div class="main-text" id="main-text">THE DOCKER CONTAINER IS NOT READY YET!</div>
+  </div>
+</body>
+<script type="text/javascript">
 
-    window.onload = function() {
-      const dockerCmd = settings.get('docker_cmd');
-      exec(dockerCmd + " docker inspect bitmarkNode", (err, stdout, stderr) => {
-        //if there is an error, then the container is not up
-        var str = stderr.toString().trim();
-        //if container is up, block message
-        if(str.length !== 0){
-          document.getElementById('main-text').style.display = "block"; ;
-        } else {
-          document.getElementById('main-text').style.display = "display"; ;
-        }
-      });
-    };
 
-    //Open all external links in browser - Uses JQuery
-    let shell = require('electron').shell
-    $('iframe').load(function(){
-      $(this).contents().find("body").on('click', function(event) {
-        if (event.target.href.startsWith('https')) {
-          event.preventDefault()
-          shell.openExternal(event.target.href)
-        }
-      });
+  window.onload = function () {
+    const dockerCmd = settings.get('docker_cmd');
+    exec(dockerCmd + " docker inspect bitmarkNode", (err, stdout, stderr) => {
+      //if there is an error, then the container is not up
+      var str = stderr.toString().trim();
+      //if container is up, block message
+      if (str.length !== 0) {
+        document.getElementById('main-text').style.display = "block";;
+      } else {
+        document.getElementById('main-text').style.display = "display";;
+      }
     });
+  };
 
-  </script>
+
+  //Open all external links in browser - Uses JQuery
+  let shell = require('electron').shell
+  $('iframe').load(function () {
+    $(this).contents().find("body").on('click', function (event) {
+      if (event.target.href.startsWith('https')) {
+        event.preventDefault()
+        shell.openExternal(event.target.href)
+      }
+    });
+  });
+
+</script>
+
 </html>
