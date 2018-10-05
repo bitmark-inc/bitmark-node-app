@@ -19,7 +19,7 @@ function startBitmarkNodeLocal(){
 			consoleStd.log('[menu]', 'startBitmarkNodeLocal Error', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
-		reloadMain("index");
+		reloadMain("index", false);
 	}else{
 		consoleStd.log('[menu]', "startBitmarkNodeLocal: Function already running");
 		newNotification(anotherActionIsRunning);

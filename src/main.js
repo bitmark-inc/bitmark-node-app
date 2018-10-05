@@ -102,7 +102,7 @@ app.on('ready', function() {
     darkTheme: true
   });
   //Load the webpage
-  reloadMain('index');
+  reloadMain('index', true);
   // Emitted when the window is closed.
   mainWindow.on('closed', () => {
     // Dereference the window object, usually you would store windows
@@ -252,11 +252,21 @@ function isActionRun() {
   return actionRun;
 }
 
-function reloadMain(page) {
+function reloadMain(page, nocache) {
   if (curPage != page) {
+    if (nocache==true) {
+      const options = {extraHeaders: 'pragma: no-cache\n'}
+      mainWindow.loadURL(`file://${__dirname}/` + page + `.html`, options);
+    }
     mainWindow.loadURL(`file://${__dirname}/` + page + `.html`);
+    
+    
     consoleStd.log('[main]', 'load new page:', page);
+
   } else {
+    if (nocache==true) {
+      mainWindow.reloadIgnoringCache()
+    }
     mainWindow.reload();
     consoleStd.log('[main]', 'mainWindow reload:', curPage);
   }
@@ -276,7 +286,7 @@ function autoUpdateCheck() {
         //If it is a success (update installed) reload the window
         setActionRun(false);
         consoleStd.log('[main]', 'autoUpdateCheck Success', result);
-        reloadMain('index');
+        reloadMain('index', true);
       },
       (error) => {
         // check error or no need to be updated
@@ -317,7 +327,7 @@ function nodeAppRun() {
         createContainerHelperSync(net, dir, isWin).then(
           (result) => {
             consoleStd.log('[main]', 'nodeAppRun Success', result);
-            reloadMain('index');
+            reloadMain('index', true);
           },
           (error) => {
             consoleStd.log('[main]', 'createContainerHelperSync Error', error);
@@ -334,12 +344,12 @@ function nodeAppRun() {
             (result) => {
               setActionRun(false);
               consoleStd.log('[main]', 'bitmark-node start', result);
-              reloadMain('index');
+              reloadMain('index',false);
             },
             (error) => {
               setActionRun(false);
               consoleStd.log('[main]', 'Error', error);
-              reloadMain('index');
+              reloadMain('index', false);
             }
           );
         }
