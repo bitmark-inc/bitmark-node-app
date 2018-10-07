@@ -70,7 +70,7 @@
 
   window.onload = function () {
     const dockerCmd = settings.get('docker_cmd');
-    exec(dockerCmd + " docker inspect bitmarkNode", (err, stdout, stderr) => {
+    exec(dockerCmd + " inspect bitmarkNode", (err, stdout, stderr) => {
       //if there is an error, then the container is not up
       var str = stderr.toString().trim();
       //if container is up, block message
