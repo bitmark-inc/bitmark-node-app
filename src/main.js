@@ -42,8 +42,7 @@ if (isWin) {
 let mainWindow, prefWindow;
 
 // Keep a global actionRun to avoid run many docker commands in the same time
-// keep curPage for not reload url when it is in the same page
-let actionRun, curPage;
+let actionRun;
 
 var repo = 'bitmark/bitmark-node';
 
@@ -253,14 +252,8 @@ function isActionRun() {
 }
 
 function reloadMain(page) {
-  if (curPage != page) {
-    mainWindow.loadURL(`file://${__dirname}/` + page + `.html`);
-    consoleStd.log('[main]', 'load new page:', page);
-  } else {
-    mainWindow.reload();
-    consoleStd.log('[main]', 'mainWindow reload:', curPage);
-  }
-  curPage = page;
+  const options = {extraHeaders: 'pragma: no-cache\n'}
+  mainWindow.loadURL(`file://${__dirname}/` + page + `.html`, options);
 }
 
 //pull update if auto_update is on
