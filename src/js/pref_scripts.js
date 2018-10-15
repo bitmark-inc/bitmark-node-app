@@ -3,6 +3,7 @@ function clickAutomaticUpdate(){
   // Fetch the user's settings and set auto_update to true
 	const settings = require('electron').remote.require('electron-settings');
   settings.set('auto_update', true);
+  settings.set('prev_mode',false) //Turn off previouse stable version mode to let the docker use the latest version
 };
 
 //When the manual update button is clicked, update the users preferences
@@ -17,6 +18,7 @@ function clickAutomaticIP(){
   // Fetch the user's settings and set auto_ip to true
   const settings = require('electron').remote.require('electron-settings');
   settings.set('auto_ip', true);
+  settings.set('prev_mode', false);
 
   //Disable the textbox and button
   document.getElementById("textbox").readOnly = true;
