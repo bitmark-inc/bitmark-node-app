@@ -3,7 +3,7 @@
 [ [Client Setup](#Client-Setup-Introduction) | [Developer Setup](#Developer-Setup) ]
 
 ## Application Screenshot
-![Application Screenshot](https://i.imgur.com/vYqtQ4I.jpg)
+![Application Screenshot](https://i.imgur.com/wqymhR2.jpg)
 
 ## Download the Bitmark-Node-APP
 - [Ubuntu](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/linux/bitmark-node-app_1.0.0_amd64.deb)
@@ -68,7 +68,7 @@ When the program is start, it will create the Docker container to run the Bitmar
 ## User Interface Walkthrough
 
 ### 1. Login Screen
-![](https://i.imgur.com/Heebqtg.jpg)
+![](https://i.imgur.com/j0DYcXN.jpg)
 
 On the login screen, you can either enter your 24-word recovery phrase to log in to an existing account or you're able to create a new account. When you create a new account, you will be assigned a 24-word recovery phrase that will allow you to login to the same account after restarting the Docker container. You will also be prompted to enter a Bitcoin and Litecoin wallet address to allow you to receive any monetary awards for verifying Bitmark property transactions (these address can be changed at any time). If you do not have a Bitcoin or Litecoin wallet, see [here](#Payment-Addresses) for more information.
 
@@ -78,7 +78,7 @@ On the login screen, you can either enter your 24-word recovery phrase to log in
 On this screen, you can start up the two parts of the Bitmark Node software, ```bitmarkd``` and ```recorderd```. By clicking on the person icon on the top of the screen you can: view your blocks won, write down your recovery phrase, and copy down your account address. By clicking on the three bar drop-down menu you can change your language, and view the Bitmark Node documentation. You can also change your cryptocurrency wallet addresses in the ```Bitmark Wallet``` section.
 
 ### 3. Running Screen
-![](https://i.imgur.com/vYqtQ4I.jpg)
+![](https://i.imgur.com/wqymhR2.jpg)
 
 This full-sized menu appears once you start the ```bitmarkd``` software.
 
