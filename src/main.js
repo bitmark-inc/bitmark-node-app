@@ -47,7 +47,7 @@ let actionRun;
 var repo = 'bitmark/bitmark-node';
 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
-const autoUpdateCheckDelay = 60000;
+const autoUpdateCheckDelay = 120000;
 
 // Arg
 // --repo : design for testing purpose
@@ -126,7 +126,7 @@ app.on('ready', function() {
     //setTimeout(nodeAppRun, 3000);
     nodeAppRun();
     mainWindow.webContents.send('getRepo', getRepo()); //calling js method (async call)
-    //Check for check for updates if auto update is on after 60 seconds
+    //Check for check for updates if auto update is on after 2 mins
     setTimeout(autoUpdateCheck, autoUpdateCheckDelay);
   });
 });
@@ -307,6 +307,7 @@ function nodeAppRun() {
         //Call container helper and wait for the promise to reload the page on success
         const net = settings.get('network');
         const dir = settings.get('directory');
+        newNotification(appStr.createContainerStart)
         createContainerHelperSync(net, dir, isWin).then(
           (result) => {
             consoleStd.log('[main]', 'nodeAppRun Success', result);
@@ -314,10 +315,10 @@ function nodeAppRun() {
           },
           (error) => {
             consoleStd.log('[main]', 'createContainerHelperSync Error', error);
+            newNotification(appStr.containerFailStart);
             return; //terminate, don't have to start container
           }
-        );
-        newNotification(appStr.containerFailStart);
+        );   
       } else {
         //If the container is stopped, start it
         var str = stdout.toString().trim();
@@ -332,6 +333,7 @@ function nodeAppRun() {
             (error) => {
               setActionRun(false);
               consoleStd.log('[main]', 'Error', error);
+              newNotification(appStr.containerFailStart);
               reloadMain('index');
             }
           );
@@ -524,7 +526,6 @@ function createContainerSync(ip, net, dir, isWin) {
           command = baseCmd + repo;
         }
         //Run the command
-
         exec(command, (err, stdout, stderr) => {
           consoleStd.log('[main]', 'createContainerSync docker run end');
           if (err) {
