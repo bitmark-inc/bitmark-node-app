@@ -47,7 +47,7 @@ let actionRun;
 var repo = 'bitmark/bitmark-node';
 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
-const autoUpdateCheckDelay = 5000;
+const autoUpdateCheckDelay = 60000;
 
 // Arg
 // --repo : design for testing purpose
@@ -126,7 +126,7 @@ app.on('ready', function() {
     //setTimeout(nodeAppRun, 3000);
     nodeAppRun();
     mainWindow.webContents.send('getRepo', getRepo()); //calling js method (async call)
-    //Check for check for updates if auto update is on after 2 seconds
+    //Check for check for updates if auto update is on after 60 seconds
     setTimeout(autoUpdateCheck, autoUpdateCheckDelay);
   });
 });
