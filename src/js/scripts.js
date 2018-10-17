@@ -1,45 +1,46 @@
 const { ipcRenderer, remote } = require('electron');
 const refreshDelay = 1000; // delay of refresh frame
 var nodeConsole = require('console');
-var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
+//var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
+var log = require('electron-log');
 //var appStr = require('./appstring')
 
 
 /* Sidebar Functions */
 
-//Calls startBitmarkNodeSync located in main.js and refreshes the iFrame
+//Calls startBitmarkNode located in main.js and refreshes the iFrame
 function startBitmarkNodeLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		//Get the promise from startBitmarkNodeSync and refresh the frame
-		startBitmarkNodeSync().then((result) => {
-			consoleStd.log('[menu]', 'startBitmarkNodeLocal Success', result);
+		//Get the promise from startBitmarkNode and refresh the frame
+		startBitmarkNode().then((result) => {
+			log.info('[menu]', 'startBitmarkNodeLocal Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			consoleStd.log('[menu]', 'startBitmarkNodeLocal Error', error);
+			log.error('[menu]', 'startBitmarkNodeLocal', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
 		reloadMain("index");
 	}else{
-		consoleStd.log('[menu]', "startBitmarkNodeLocal: Function already running");
+		log.info('[menu]', "startBitmarkNodeLocal: Function already running");
 		newNotification(anotherActionIsRunning);
 	}
 };
 
-//calls stopBitmarkNodeSync located in main.js
+//calls stopBitmarkNode located in main.js
 function stopBitmarkNodeLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
-		//Get the promise from stopBitmarkNodeSync and refresh the frame
-		stopBitmarkNodeSync().then((result) => {
-			consoleStd.log('[menu]', 'stopBitmarkNodeLocal Success', result);
+		//Get the promise from stopBitmarkNode and refresh the frame
+		stopBitmarkNode().then((result) => {
+			log.info('[menu]', 'stopBitmarkNodeLocal Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			consoleStd.log('[menu]', 'stopBitmarkNodeLocal Error', error);
+			log.error('[menu]', 'stopBitmarkNodeLocal ', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
-		consoleStd.log('[menu]', "stopBitmarkNodeLocal:Function already running");
+		log.info('[menu]', "stopBitmarkNodeLocal:Function already running");
 		newNotification(containerHasStop);
 	}
 };
@@ -50,14 +51,14 @@ function restartBitmarkNodeLocal(){
 		newNotification(containerRestartWait);
 		//Get the promise from createContainerHelperLocal and refresh the frame
 		createContainerHelperLocal().then((result) => {
-			consoleStd.log('[menu]', 'Success', result);
+			log.info('[menu]', 'Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			consoleStd.log('[menu]', 'Error', error);
+			log.error('[menu]', error);
 			setTimeout(refreshFrame, refreshDelay);
 		});
 	}else{
-		consoleStd.log('[menu]', "restartBitmarkNodeLocal: Function already running");
+		log.info('[menu]', "restartBitmarkNodeLocal: Function already running");
 		newNotification(anotherActionIsRunning);
 	}
 };
@@ -75,24 +76,24 @@ function setNetworkBitmarkLocal(){
 		if(network === "testing"){
 			//Update network
 			settings.set('network', 'bitmark');
-			consoleStd.log('[menu]', "Changing to bitmark");
+			log.info('[menu]', "Changing to bitmark");
 			
 			//Lets the user know what is happening
 			newNotification(networkChangeBitmarkWait);
 			//Get the promise from createContainerHelperLocal and refresh the frame
 			createContainerHelperLocal().then((result) => {
-				consoleStd.log('[menu]', 'Success', result);
+				log.info('[menu]', 'Success', result);
 				setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
-				consoleStd.log('[menu]', 'Error', error);
+				log.error('[menu]', error);
 				setTimeout(refreshFrame, refreshDelay);
 			});
 		} else {
-			consoleStd.log('[menu]', "setNetworkBitmarkLocal: Already on bitmark");
+			log.info('[menu]', "setNetworkBitmarkLocal: Already on bitmark");
 			newNotification(networkAlreadyBitmark);
 		}
 	}else{
-		consoleStd.log('[menu]', "Function already running");
+		log.info('[menu]', "Function already running");
 		newNotification(anotherActionIsRunning);
 	}
 };
@@ -109,22 +110,22 @@ function setNetworkTestingLocal(){
 		if(network === "bitmark"){
 			//Update network
 			settings.set('network', 'testing');
-			consoleStd.log('[menu]', "Changing to testing");
+			log.info('[menu]', "Changing to testing");
 			newNotification("Changing the network to 'testing'. This may take some time.");
 			createContainerHelperLocal().then((result) => {
-			consoleStd.log('[menu]', 'Success', result);
+			log.info('[menu]', 'Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 			}, (error) => {
-			  consoleStd.log('[menu]', 'Error', error);
+			  log.error('[menu]', error);
 
 			});
 		} else {
-			consoleStd.log('[menu]', "Already on testing");
+			log.info('[menu]', "Already on testing");
 			//Let the user know the network is already bitmark
 			newNotification(networkAlreadyTest);
 		}
 	}else{
-		consoleStd.log('[menu]', "setNetworkTestingLocal: Function already running");
+		log.info('[menu]', "setNetworkTestingLocal: Function already running");
 		newNotification(anotherActionIsRunning);
 	}
 };
@@ -135,14 +136,14 @@ function pullUpdateLocal(){
 	//If the program is not running anything, start the container
 	if(!isActionRun()){
 		//Get the promise from pullUpdate and refresh the frame (a success only occurs when an update is found)
-		pullUpdateSync().then((result) => {
-			consoleStd.log('[menu]', 'Success', result);
+		PullUpdate().then((result) => {
+			log.info('[menu]', 'Success', result);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			consoleStd.log('[menu]', 'Error', error)
+			log.error('[menu]', error);
 		});
 	}else{
-		consoleStd.log('[menu]', "pullUpdateLocal: Function already running");
+		log.info('[menu]', "pullUpdateLocal: Function already running");
 		newNotification(anotherActionIsRunning);
 	}
 };
@@ -194,7 +195,7 @@ function createContainerHelperLocal(){
 	var isWin = remote.getGlobal('process').platform === "win32";
 	//Return the promise from createContainerHelperIPOnly to allow the frame to be freshed
 	return new Promise((resolve, reject) => {
-		createContainerHelperSync(net, dir, isWin).then((result) => {
+		createContainerHelper(net, dir, isWin).then((result) => {
 			resolve(result);
 		}, (error) => {
 			reject(error);
