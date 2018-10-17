@@ -47,7 +47,8 @@ let actionRun;
 var repo = 'bitmark/bitmark-node';
 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
-const autoUpdateCheckDelay = 120000;
+//const autoUpdateCheckDelay = 120000;
+var updateCheckDelay = 180 *1000;
 
 // Arg
 // --repo : design for testing purpose
@@ -125,9 +126,6 @@ app.on('ready', function() {
     //On application start-up, run nodeRun
     //setTimeout(nodeAppRun, 3000);
     nodeAppRun();
-    mainWindow.webContents.send('getRepo', getRepo()); //calling js method (async call)
-    //Check for check for updates if auto update is on after 2 mins
-    setTimeout(autoUpdateCheck, autoUpdateCheckDelay);
   });
 });
 
@@ -297,51 +295,80 @@ function nodeAppRun() {
       return;
     }
   );
-  const dockerCmd = settings.get('docker_cmd');
-  //Get the container status of bitmarkNode
-  exec(
-    dockerCmd + " inspect -f '{{.State.Running}}' bitmarkNode",
-    (err, stdout, stderr) => {
-      //If the container is not setup, create it
-      if (err) {
-        //Call container helper and wait for the promise to reload the page on success
-        const net = settings.get('network');
-        const dir = settings.get('directory');
-        newNotification(appStr.createContainerStart)
-        createContainerHelperSync(net, dir, isWin).then(
-          (result) => {
-            consoleStd.log('[main]', 'nodeAppRun Success', result);
-            reloadMain('index');
-          },
-          (error) => {
-            consoleStd.log('[main]', 'createContainerHelperSync Error', error);
-            newNotification(appStr.containerFailStart);
-            return; //terminate, don't have to start container
-          }
-        );   
-      } else {
-        //If the container is stopped, start it
-        var str = stdout.toString().trim();
-        if (str.includes('false')) {
-          setActionRun(true);
-          dockerStartSync().then(
-            (result) => {
-              setActionRun(false);
-              consoleStd.log('[main]', 'bitmark-node start', result);
-              reloadMain('index');
-            },
-            (error) => {
-              setActionRun(false);
-              consoleStd.log('[main]', 'Error', error);
-              newNotification(appStr.containerFailStart);
-              reloadMain('index');
+  imageCheckSync().then(
+    (result) => { //image exist run it
+      consoleStd.log('[main]', 'autoUpdateCheck updateCheckDelay');
+      setTimeout(autoUpdateCheck, updateCheckDelay);
+      const dockerCmd = settings.get('docker_cmd');
+      //Get the container status of bitmarkNode
+      exec(
+        dockerCmd + " inspect -f '{{.State.Running}}' bitmarkNode",
+        (err, stdout, stderr) => {
+          //If the container is not setup, create it
+          if (err) {
+            //Call container helper and wait for the promise to reload the page on success
+            const net = settings.get('network');
+            const dir = settings.get('directory');
+            newNotification(appStr.createContainerStart)
+            createContainerHelperSync(net, dir, isWin).then(
+              (result) => {
+                consoleStd.log('[main]', 'nodeAppRun Success', result);
+                reloadMain('index');
+              },
+              (error) => {
+                consoleStd.log('[main]', 'createContainerHelperSync Error', error);
+                newNotification(appStr.containerFailStart);
+                return; //terminate, don't have to start container
+              }
+            );   
+          } else {
+            //If the container is stopped, start it
+            var str = stdout.toString().trim();
+            if (str.includes('false')) {
+              setActionRun(true);
+              dockerStartSync().then(
+                (result) => {
+                  setActionRun(false);
+                  consoleStd.log('[main]', 'bitmark-node start', result);
+                  reloadMain('index');
+                },
+                (error) => {
+                  setActionRun(false);
+                  consoleStd.log('[main]', 'Error', error);
+                  newNotification(appStr.containerFailStart);
+                  reloadMain('index');
+                }
+              );
             }
-          );
+          }
         }
-      }
+      );
+    },
+    (error) => {// image does not exit run update immediately 
+      consoleStd.log('[main]', 'autoUpdateCheck immediately');
+      setTimeout(autoUpdateCheck, 0);
+      return;
     }
   );
+
 }
+
+function imageCheckSync() {
+  return new Promise((resolve, reject)=>{
+    const dockerCmd = settings.get('docker_cmd');
+    cmd = dockerCmd + ' inspect --type=image bitmark/bitmark-node';
+    consoleStd.log("imageCheckSync cmd:", cmd)
+    exec(cmd , (err, stdout, stderr) => {
+      //Get the output
+      if (err) {
+        reject('no image');
+      } else {
+        resolve('image exist');
+      }
+    });
+  });
+}
+
 function dockerLoginSync() {
   return new Promise((resolve, reject) => {
     const dockerCmd = settings.get('docker_cmd');
@@ -627,6 +654,8 @@ function dirCheckHelperSync(dir) {
     dirCheckSync(datatest);
   });
 }
+
+
 
 //Create the file submenu
 var fileMenu = new Menu();
