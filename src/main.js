@@ -49,7 +49,7 @@ var repo = 'bitmark/bitmark-node';
 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
 //const autoUpdateCheckDelay = 120000;
-var updateCheckDelay = 180 *1000;
+var updateCheckDelay = 60 *1000;
 
 // Arg
 // --repo : design for testing purpose
