@@ -49,7 +49,7 @@ var repo = 'bitmark/bitmark-node';
 
 //After Program start after autoUpdateCheckDelay, autoUpdateCheck process will be launch
 //const autoUpdateCheckDelay = 120000;
-var updateCheckDelay = 60 *1000;
+var updateCheckDelay = 40 *1000;
 
 // Arg
 // --repo : design for testing purpose
@@ -102,6 +102,7 @@ app.on('ready', function() {
     trasparent: true,
     darkTheme: true
   });
+  //notifier.notify('****************Message**************');
   //Load the webpage
   reloadMain('index');
   // Emitted when the window is closed.

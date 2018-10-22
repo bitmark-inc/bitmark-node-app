@@ -64,6 +64,9 @@ The Bitmark node software is distributed as a standalone [Docker container](http
 
 ** You need to have docker permission to run bitmark-node-app. **
 When the program is start, it will create the Docker container to run the Bitmark Node software, please note that this will take some time, as it has to download the Bitmark node software. 
+** For ubuntu user, you may need to add user into Docker group
+```sudo usermod -a -G docker userName````
+
 
 ## User Interface Walkthrough
 
