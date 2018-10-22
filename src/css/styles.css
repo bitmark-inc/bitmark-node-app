@@ -71,6 +71,10 @@ body {
     display: block;
 }
 
+.sidenav .title:active {
+    box-shadow:  0 5px 4px #aaa inset;
+    transform: translateY(4px);
+}
 
 .image-text {
   display: block;
