@@ -177,6 +177,34 @@ function createPreferencesWindowLocal(){
 	});
 };
 
+//calls stopBitmarkNodeSync located in main.js
+function usePrevStable(){
+	//If the program is not running anything, start the container
+	prevMode = settings.get('prev_mode');
+	if (prevMode == true) {
+		newNotification(hasUsestableVersion);
+		return;
+	}
+	if(!isActionRun()){
+		  //disable auto update
+		settings.set('prev_mode', true);
+		settings.set('auto_update', false);
+		usePrevVerSync().then((result) => {
+			consoleStd.log('[menu]', 'Success', result);
+			newNotification(reverseToPrevStable);
+			setTimeout(refreshFrame, refreshDelay);
+		}, (error) => {
+			settings.set('prev_mode', false);
+			settings.set('auto_update', true);
+			consoleStd.log('[menu]', 'Error', error)
+			newNotification(error);
+		});
+	}else{
+		consoleStd.log('[menu]', "prevStable:Function already running");
+		newNotification(anotherActionIsRunning);
+	}
+};
+
 //Reloads the iFrame
 function refreshFrame() {
 	document.getElementsByTagName('iframe')[0].src=document.getElementsByTagName('iframe')[0].src

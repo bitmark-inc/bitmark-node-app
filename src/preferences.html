@@ -23,10 +23,12 @@
     <div class="sidenavPref">
       <div class="vertical-menu">
         <a href="#" id="updateButton" class="active">Update Settings</a>
+        <a href="#" id="prevButton" class="inactive">Previous Stable</a>
         <a href="#" id="ipButton" class="inactive">IP Address</a>
         <a href="#" id="aboutButton" class="inactive">About</a>
       </div>
-    </div>
+    </div>    
+
     <div class="main"> 
       <div id="update">
         <div class="title">UPDATE SETTINGS</div>
@@ -35,13 +37,32 @@
         <div id="radio" class="text">
           <input type="radio" id="automatic_update" name="update" value="automatic_update" onchange="clickAutomaticUpdate()">
           <label for="automatic_update">Automatically check for updates</label>
+          <div class="subtext">Note:If switch to automatically update, use previous stable version is disabled</div> 
               
           <br>
 
           <input type="radio" id="manual_update" name="update" value="manual_update" onchange="clickManualUpdate()">
           <label for="manual_update">Manually check for updates</label>
+          <div class="subtext">Note:If an update is found, it will be installed automatically. If switch to automatically update</div> 
+        </div>          
+      </div>
+
+      <div id="prev"  hidden="true">
+        <div class="title">PREVIOUS VERSION SETTINGS</div>
+        <hr class="hr-title">
+        <div class="header">Do you want to use previous stable version? </div>
+        <div id="radio" class="text">
+          <input type="radio" id="use_latest" name="prev" value="use_latest" onchange="clickLatest()">
+          <label for="use_latest">Use latest version bitmark-node image</label>
+          <div class="subtext">Note: This turns automatically update on, you need to close bitmark-node-app and restart it to download latest version</div> 
+              
+          <br>
+  
+          <input type="radio" id="use_prev" name="prev" value="use_prev" onchange="clickStable()">
+          <label for="use_prev">Use previous stable version bitmark-node image</label>
+          <div class="subtext">Note: If use previous stable version, the automatically update is disabled.</div> 
         </div>
-        <div class="subtext">Note: If an update is found, it will be installed automatically</div> 
+        
       </div>
 
       <div id="ip" hidden="true">
@@ -100,13 +121,21 @@
 
         // Fetch the auto update settings
         var update = settings.get('auto_update');
-
+        var prevMode = settings.get('prev_mode');
         //Set the radio button to clicked for whatever the current setting is
         if(update){
           radiobtn = document.getElementById("automatic_update");
           radiobtn.checked = true;
         }else{
           radiobtn = document.getElementById("manual_update");
+          radiobtn.checked = true;
+        }
+
+         if(prevMode){
+          radiobtn = document.getElementById("use_prev");
+          radiobtn.checked = true;
+        }else{
+          radiobtn = document.getElementById("use_latest");
           radiobtn.checked = true;
         }
 
@@ -136,32 +165,60 @@
         $('#updateButton').click(function(){
           //Set update as active and show it, hide ip and about and set as inactive
           var update = document.getElementById("updateButton");
+          var prev = document.getElementById("prevButton");    
           var about = document.getElementById("aboutButton");
           var ip = document.getElementById("ipButton");
 
           update.className="active";
+          prev.className="inactive";
           ip.className="inactive";
           about.className="inactive";
 
           $("#update").show();
+          $("#prev").hide();
           $("#ip").hide();
           $("#about").hide();
         });
     });
+
+     //Captures Previous button - Uses JQuery
+     $(document).ready(function(){
+        $('#prevButton').click(function(){
+          //Set update as active and show it, hide ip and about and set as inactive
+          var update = document.getElementById("updateButton");
+          var prev = document.getElementById("prevButton");          
+          var about = document.getElementById("aboutButton");
+          var ip = document.getElementById("ipButton");
+
+          update.className="inactive";
+          prev.className="active";
+          ip.className="inactive";
+          about.className="inactive";
+
+          $("#update").hide();
+          $("#prev").show();
+          $("#ip").hide();
+          $("#about").hide();
+        });
+    });
+
 
     //Captures IP button - Uses JQuery
     $(document).ready(function(){
         $('#ipButton').click(function(){
           //Set ip as active and show it, hide update and about and set as inactive
           var update = document.getElementById("updateButton");
+          var prev = document.getElementById("prevButton");      
           var about = document.getElementById("aboutButton");
           var ip = document.getElementById("ipButton");
 
           update.className="inactive";
+          prev.className="inactive";
           ip.className="active";
           about.className="inactive";
 
           $("#update").hide();
+          $("#prev").hide();
           $("#ip").show();
           $("#about").hide();
         });
@@ -172,14 +229,17 @@
         $('#aboutButton').click(function(){
          //Get about and update buttons and set about as active, update as inactive (CSS)
           var update = document.getElementById("updateButton");
+          var prev = document.getElementById("prevButton");      
           var about = document.getElementById("aboutButton");
           var ip = document.getElementById("ipButton");
 
           update.className="inactive";
+          prev.className="inactive";
           ip.className="inactive";
           about.className="active";
 
           $("#update").hide();
+          $("#prev").hide();
           $("#ip").hide();
           $("#about").show();
         });
