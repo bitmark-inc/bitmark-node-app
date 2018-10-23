@@ -1,7 +1,5 @@
 const { ipcRenderer, remote } = require('electron');
 const refreshDelay = 1000; // delay of refresh frame
-var nodeConsole = require('console');
-//var consoleStd = new nodeConsole.Console(process.stdout, process.stderr);
 var log = require('electron-log');
 //var appStr = require('./appstring')
 
@@ -187,20 +185,19 @@ function usePrevStable(){
 	}
 	if(!isActionRun()){
 		  //disable auto update
-		settings.set('prev_mode', true);
-		settings.set('auto_update', false);
-		usePrevVerSync().then((result) => {
-			consoleStd.log('[menu]', 'Success', result);
+		newNotification(reverseToPrevStable);
+		usePrevVersion().then((result) => {
+			log.info('[menu]', 'Success', result);
+			useLatestVer(false);
 			newNotification(reverseToPrevStable);
 			setTimeout(refreshFrame, refreshDelay);
 		}, (error) => {
-			settings.set('prev_mode', false);
-			settings.set('auto_update', true);
-			consoleStd.log('[menu]', 'Error', error)
+			useLatestVer(true);
+			log.error('[menu]', 'Error', error)
 			newNotification(error);
 		});
 	}else{
-		consoleStd.log('[menu]', "prevStable:Function already running");
+		log.info('[menu]', "prevStable:Some Function is already running");
 		newNotification(anotherActionIsRunning);
 	}
 };

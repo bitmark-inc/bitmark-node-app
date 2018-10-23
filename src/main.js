@@ -106,7 +106,7 @@ app.on('ready', function() {
     trasparent: true,
     darkTheme: true
   });
-  //notifier.notify('****************Message**************');
+
   //Load the webpage
   reloadMain('index');
   // Emitted when the window is closed.
@@ -252,6 +252,14 @@ function getPrevMode() {
   return settings.get('prev_mode');
 }
 
+
+function useLatestVer(yes) {
+  if (!yes) {
+    settings.set('auto_update', false);
+  }
+  settings.set('prev_mode', !yes);
+}
+
 function getRepo(prevModeOn) {
   prevModeOn? newRepo = repo+ ":" + tags[1] : newRepo = repo;
   return newRepo;
@@ -274,6 +282,7 @@ function reloadMain(page) {
 function autoUpdateCheck() {
   //get the auto update value
   const auto_update = settings.get('auto_update');
+
   if (auto_update === true) {
     log.info('[main]', 'Checking for updates with auto updater');
     //Call pullUpdate and wait for the promise to return the result
@@ -282,6 +291,7 @@ function autoUpdateCheck() {
       (result) => {
         //If it is a success (update installed) reload the window
         setActionRun(false);
+        useLatestVer(true);
         log.info('[main]', 'autoUpdateCheck Success');
         reloadMain('index');
       },
@@ -296,48 +306,47 @@ function autoUpdateCheck() {
 
 // Entry point of automation on docker operations
 // Ran on startup and checks the status of the container
-//  1. If the container is not setup, it creates it
-//  2. If the container is not start, it starts it
-//  3. If the container is running, it does nothing
+// 1. Check Directory: fail: program stop, sucess: program process next step
+// 2. Check Docker image
 
 function nodeAppRun() {
   const dir = settings.get('directory');
   dirCheckHelper(dir).then(
-    (result) => {
-      log.info('[main]', 'directoryCheckHelper success');
+    (result) => { // Directory Check Pass
+      log.info('[main]Directory Check Pass');
     },
-    (error) => {
+    (error) => { // Directory Check Fail, program should not continoue
       newNotification(appStr.dirCheckFailed);
       return;
     }
   );
+
   imageCheck().then(
-    (result) => { //image exist run it
-      log.info('[main]', 'autoUpdateCheck updateCheckDelay');
-      setTimeout(autoUpdateCheck, updateCheckDelay);
+    (result) => { //image exist run it and then run autoUpdate
+      log.info('Start image check');
+      setTimeout(autoUpdateCheck, updateCheckDelay); 
       const dockerCmd = settings.get('docker_cmd');
       //Get the container status of bitmarkNode
       exec(
         dockerCmd + " inspect -f '{{.State.Running}}' bitmarkNode",
         (err, stdout, stderr) => {
-          //If the container is not setup, create it
-          if (err) {
+          if (err) { //container is not running
             //Call container helper and wait for the promise to reload the page on success
             const net = settings.get('network');
             const dir = settings.get('directory');
             newNotification(appStr.createContainerStart)
-            createContainerHelper(net, dir, isWin).then(
+            createContainerHelper(net, dir, isWin, false).then(
               (result) => {
                 log.info('[main]', 'nodeAppRun Success', result);
                 reloadMain('index');
               },
               (error) => {
-                log.info('[main]', 'createContainerHelper Error', error);
                 newNotification(appStr.containerFailStart);
+                log.info('[main]', 'createContainerHelper Error', error);
                 return; //terminate, don't have to start container
               }
             );   
-          } else {
+          } else { // container is running start it
             //If the container is stopped, start it
             var str = stdout.toString().trim();
             if (str.includes('false')) {
@@ -360,19 +369,28 @@ function nodeAppRun() {
         }
       );
     },
-    (error) => {// image does not exit run update immediately 
-      log.info('[main]', 'autoUpdateCheck immediately');
-      setTimeout(autoUpdateCheck, 0);
+    (error) => {// image does not exit run update immediately  
+      if (getPrevMode()) {// Run 
+        usePrevVersion();
+      } else {
+        autoUpdateCheck();
+      }
       return;
     }
   );
-
 }
 
 function imageCheck() {
   return new Promise((resolve, reject)=>{
+    log.info('[main]start imageCheck');
     const dockerCmd = settings.get('docker_cmd');
-    cmd = dockerCmd + ' inspect --type=image bitmark/bitmark-node';
+    const prevMode = setting.get('prev_mode')
+    if (prevMode) {
+      cmd = dockerCmd + ' inspect --type=image bitmark/bitmark-node:prev';
+    } else {
+      cmd = dockerCmd + ' inspect --type=image bitmark/bitmark-node';
+    }
+    
     exec(cmd , (err, stdout, stderr) => {
       //Get the output
       if (err) {
@@ -499,8 +517,9 @@ function stopBitmarkNode() {
   });
 }
 
-function usePrevVer() {
+function usePrevVersion() {
   //delete latest bitmarkd
+  log.info('[main]usePrevVersion start');
   const dockerCmd = settings.get('docker_cmd');  
    //Attempt to remove and stop the container before creating the container.
   return new Promise((resolve, reject) => {
@@ -514,9 +533,8 @@ function usePrevVer() {
           log.error('[main]', 'reversePrevVersion pull error:', err);
         }
         preCmd = dockerCmd + ' pull ' + getRepo(true) // pull prev version
-        //Docker pull image
+        //Docker pull prev tag image
         exec(preCmd, (err, stdout, stderr) => {
-          log.info('[main]', 'reversePrevVersion pull ', preCmd);
           if (err) { //Pull Prev Fail, use latest
             log.error('[main]', 'reversePrevVersion pull bitmarkNode failed');
             //Call container helper and wait for the promise to reload the page on success
@@ -525,11 +543,13 @@ function usePrevVer() {
             createContainerHelper(net, dir, isWin, getRepo(false)).then(
               (result) => {
                 setActionRun(false);
-                log.info('[main]', 'reversePrevVersion pull prev version fail, use latest image', result);               
+                log.info('[main]', 'reversePrevVersion pull prev version fail, use latest image', result); 
+                useLatestVer(true);
                 reject(appSrt.errorPullPrevFailusing + "Use latest version");
               },
               (error) => {
                 setActionRun(false);
+                useLatestVer(true); // although not use the latest version, but system should still think it need to use the latest Version
                 reject(appSrt.errorPullPrevFailusing + "Not able to use latest version");
               }
             );
@@ -544,11 +564,13 @@ function usePrevVer() {
               createContainerHelper(net, dir, isWin, getRepo(true)).then(
                 (result) => {
                   setActionRun(false);
+                  useLatestVer(false);
                   log.info('[main]', 'createContainerHelper Success', result);
                   resolve(result);
                 },
                 (error) => {
                   setActionRun(false);
+                  useLatestVer(false);
                   reject(error);
                 }
               );
@@ -657,7 +679,7 @@ function PullUpdate() {
           //login successfully, do nothing.
         },
         (error) => {
-          log.error('[main]', 'PullUpdate', error);
+          log.warn('[main]', 'PullUpdate Login', error);
           newNotification(appStr.notLoginWarn);
         }
       );

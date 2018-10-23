@@ -38,7 +38,8 @@ nodeUpdated = 'The Bitmark Node software has been updated.';
 containerRestartWait = 'Restarting container. This may take some time.';
 
 //Reverse Previous Version
-hasUsestableVersion = 'Bitmark-node has use previous stable version';
+stableVerReverseStart = 'Bitmark-node reverse to stable version process start. This may take couple minutes';
+hasUsestableVersion = 'Bitmark-node has used previous stable version';
 errorPullPrevFail = 'Reverse Previous Stable Version Fail!';
 reverseToPrevStable = 'Bitmark-node has reverse to previous stable version';
 
@@ -68,6 +69,7 @@ exports.conatinerCreateFail = conatinerCreateFail;
 exports.containerCreateSucces = containerCreateSucces;
 //Update and Login
 exports.checkUpdateWait = checkUpdateWait;
+exports.stableVerReverseStart = stableVerReverseStart;
 exports.hasUsestableVersion = hasUsestableVersion;
 exports.errorPullPrevFail = errorPullPrevFail;
 exports.reverseToPrevStable = reverseToPrevStable;
