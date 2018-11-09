@@ -690,6 +690,8 @@ viewMenu.append(new MenuItem({ role: 'zoomout', accelerator: 'CmdOrCtrl+-' }));
 var menu = new Menu();
 menu.append(new MenuItem({ label: 'File', submenu: fileMenu }));
 menu.append(new MenuItem({ label: 'View', submenu: viewMenu }));
+menu.append(new MenuItem({ label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" }));
+menu.append(new MenuItem({ label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:"  }));
 menu.append(
   new MenuItem({
     label: 'About',
