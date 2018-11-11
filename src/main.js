@@ -2,7 +2,7 @@
 const electron = require('electron'); //Electron
 const { app, BrowserWindow } = require('electron'); //Used to display windows
 const { Menu } = require('electron'); //Electron Default Menu
-const MenuItem = electron.MenuItem; //Electron Menu Item - Context Menu
+require('electron-context-menu')({});
 const ipc = electron.ipcMain; //IPC used to display context menu (hamburger menu)
 const path = require('path'); //Used to interact with file paths
 const os = require('os'); //Used to determine the user's current OS
@@ -102,7 +102,14 @@ app.on('ready', function() {
     trasparent: true,
     darkTheme: true
   });
-  //notifier.notify('****************Message**************');
+
+  const menu = Menu.buildFromTemplate(menuTemplate)
+  Menu.setApplicationMenu(menu)
+  ipc.on('show-context-menu', function(event) {
+    const win = BrowserWindow.fromWebContents(event.sender);
+    menu.popup(win);
+  });
+
   //Load the webpage
   reloadMain('index');
   // Emitted when the window is closed.
@@ -657,55 +664,37 @@ function dirCheckHelper(dir) {
 }
 
 
-
-//Create the file submenu
-var fileMenu = new Menu();
-fileMenu.append(
-  new MenuItem({
-    label: 'Preferences',
-    click() {
-      createPreferencesWindow();
-    }
-  })
-);
-fileMenu.append(new MenuItem({ role: 'quit' }));
-
-//create the view submenu
-var viewMenu = new Menu();
-viewMenu.append(
-  new MenuItem({
-    label: 'Reload',
-    accelerator: 'CmdOrCtrl+R',
-    click(item, focusedWindow) {
-      if (focusedWindow) focusedWindow.reload();
-    }
-  })
-);
-viewMenu.append(new MenuItem({ type: 'separator' }));
-viewMenu.append(new MenuItem({ role: 'resetzoom', accelerator: 'CmdOrCtrl+0' }));
-viewMenu.append(new MenuItem({ role: 'zoomin', accelerator: 'CmdOrCtrl+Shift+=' }));
-viewMenu.append(new MenuItem({ role: 'zoomout', accelerator: 'CmdOrCtrl+-' }));
-
-//Create the main menu
-var menu = new Menu();
-menu.append(new MenuItem({ label: 'File', submenu: fileMenu }));
-menu.append(new MenuItem({ label: 'View', submenu: viewMenu }));
-menu.append(new MenuItem({ label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" }));
-menu.append(new MenuItem({ label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:"  }));
-menu.append(
-  new MenuItem({
+const menuTemplate = [
+  {
+    label: 'File',
+    submenu: [
+      { label: 'Preferences', click() {  createPreferencesWindow(); }},
+      { role: "quit"}
+    ]
+  },
+  {
+    label: 'View',
+    submenu: [
+      {role: 'reload'},
+      {type: 'separator'},
+      {role: 'resetzoom'},
+      {role: 'zoomin'},
+      {role: 'zoomout'}
+    ]
+  },
+ {
+    label: 'Edit',
+    submenu: [
+      {role: 'cut'},
+      {role: 'copy'},
+      {role: 'paste'}
+    ]
+  },
+  {
     label: 'About',
-    click() {
-      electron.shell.openExternal('https://bitmark.com');
-    }
-  })
-);
+    click () {  electron.shell.openExternal('https://bitmark.com'); }
+  }
+]
 
-//Show the menu on click
-ipc.on('show-context-menu', function(event) {
-  const win = BrowserWindow.fromWebContents(event.sender);
-  menu.popup(win);
-});
 
-//Right Click Context Menu (Cut, Copy, Paste)
-require('electron-context-menu')({});
+
