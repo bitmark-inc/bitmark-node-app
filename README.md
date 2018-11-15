@@ -6,9 +6,9 @@
 ![Application Screenshot](https://i.imgur.com/wqymhR2.jpg)
 
 ## Download the Bitmark-Node-APP
-- [Ubuntu](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/linux/bitmark-node-app_1.0.0_amd64.deb)
-- [Windows](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/windows/x64/bitmark-node-app-1.0.0+Setup.exe)
-- [MacOS](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/pre-release-v1.0/mac/bitmark-node-app-darwin-x64-1.0.0.zip)
+- [Ubuntu](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/release-v1.0/bitmark-node-app_1.0.0_amd64.deb)
+- [Windows](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/release-v1.0/bitmark-node-app-1.0.0+Setup.exe)
+- [MacOS](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/release-v1.0/bitmark-node-app-darwin-x64-1.0.0.zip)
 
 # Client Setup Introduction
 
@@ -62,10 +62,11 @@ The Bitmark node software is distributed as a standalone [Docker container](http
 - [Windows](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/release-v1.0/bitmark-node-app-1.0.0+Setup.exe)
 - [MacOS](https://s3.ap-northeast-2.amazonaws.com/bitmark-node-app/release-v1.0/bitmark-node-app-darwin-x64-1.0.0.zip)
 
-** You need to have docker permission to run bitmark-node-app. **
+**You need to have docker permission to run bitmark-node-app.**
+
 When the program is start, it will create the Docker container to run the Bitmark Node software, please note that this will take some time, as it has to download the Bitmark node software. 
-** For ubuntu user, you may need to add user into Docker group
-```sudo usermod -a -G docker userName````
+**For ubuntu user**, you may need to add user into Docker group
+```sudo usermod -a -G docker userName```
 
 
 ## User Interface Walkthrough
